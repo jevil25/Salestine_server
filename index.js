@@ -12,7 +12,7 @@ const fetch = require("node-fetch");
 const User = require("./models/User");
 mongoDB();
 
-app.use(cors("http://localhost:4000"));
+app.use(cors("https://salestine-jevil25.vercel.app/"));
 app.use(express.json());
 // console.log(Zoom_cred_server.SDK.KEY)
 
@@ -56,7 +56,7 @@ app.get("/api/authorize", (req, res) => {
   const queryParams = querystring.stringify({
     response_type: "code",
     client_id: Zoom_cred_server.SDK.KEY,
-    redirect_uri: "http://localhost:4000/Zoommeetstart",
+    redirect_uri: "https://salestine-jevil25.vercel.app/Zoommeetstart",
   });
   const authorizationUrl = `https://zoom.us/oauth/authorize?${queryParams}`;
   console.log(authorizationUrl);
@@ -95,7 +95,7 @@ app.post("/api/callback", async (req, res) =>{
         client_id: Zoom_cred_server.SDK.KEY,
         client_secret: Zoom_cred_server.SDK.SECRET,
         code,
-        redirect_uri: "http://localhost:4000/Zoommeetstart"
+        redirect_uri: "https://salestine-jevil25.vercel.app/Zoommeetstart"
       }),
     })
 
@@ -275,7 +275,7 @@ app.post("/api/join-meet", async (req, res) => {
 );
 
 app.post("/api/zoomLogin", (req, res) => {
-  const params = "response_type=code&client_id="+Zoom_cred_server.SDK.KEY+"&redirect_uri=http://localhost:4000/login";
+  const params = "response_type=code&client_id="+Zoom_cred_server.SDK.KEY+"&redirect_uri=https://salestine-jevil25.vercel.app/login";
   // console.log(params);
   res.json(
     `https://zoom.us/oauth/authorize?${params}` 
@@ -309,7 +309,7 @@ app.post("/api/accessToken", async (req, res) =>{
       body: querystring.stringify({
         code: code,
         grant_type: "authorization_code",
-        redirect_uri: "http://localhost:4000/login",
+        redirect_uri: "https://salestine-jevil25.vercel.app/login",
       }),
     })
 
