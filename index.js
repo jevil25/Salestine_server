@@ -192,6 +192,7 @@ app.listen(port, () => {
 
 app.post("/api/getRecordings", async (req, res) => {
   try {
+    console.log(req.body.access_token);
     // Make a GET request to the Zoom API's "list recordings" endpoint
     const response = await fetch(
       `https://api.zoom.us/v2/users/me/recordings?page_size=30`,
