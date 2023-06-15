@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const {Schema} = mongoose;
 
 const UserSchema = new Schema({
-  userId: { type: String, required: true, unique: true },
+  userId: { type: String, unique: true },
   email: { type: String, required: true, unique: true },
-  zoomEmail: { type: String, required: true, unique: true },
-  name: { type: String, required: true },
+  zoomEmail: { type: String, unique: true },
+  username: { type: String, required: true },
   password: { type: String },
   provider: { type:String, default:"Salestine" },
   meetings: [

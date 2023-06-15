@@ -15,13 +15,17 @@ router.post("/register",async (req, res) => {
         return res.status(400).json({ message: 'Email already registered' });
       }
       try {
-        await User.create({
+        User.create({
             username: name,
             email: email,
             password: password,
-            provider: "salestine"
-        });
-        res.json({ success: true });
+            provider: "salesine"
+        }).then((user) => {
+            console.log(user)
+        }).catch((err) => {
+            console.log(err)
+        })
+        res.json({ success: true,email:email });
       } catch {
         res.json({ success: false });
       }

@@ -12,7 +12,8 @@ const fetch = require("node-fetch");
 const User = require("./models/User");
 mongoDB();
 
-app.use(cors("https://salestine-jevil25.vercel.app/"));
+const frontEndUrl = "http://localhost:4000";
+app.use(cors(`${frontEndUrl}`));
 app.use(express.json());
 // console.log(Zoom_cred_server.SDK.KEY)
 
@@ -56,7 +57,7 @@ app.get("/api/authorize", (req, res) => {
   const queryParams = querystring.stringify({
     response_type: "code",
     client_id: Zoom_cred_server.SDK.KEY,
-    redirect_uri: "https://salestine-jevil25.vercel.app/Zoommeetstart",
+    redirect_uri: `${frontEndUrl}/Zoommeetstart`,
   });
   const authorizationUrl = `https://zoom.us/oauth/authorize?${queryParams}`;
   console.log(authorizationUrl);
@@ -95,7 +96,7 @@ app.post("/api/callback", async (req, res) =>{
         client_id: Zoom_cred_server.SDK.KEY,
         client_secret: Zoom_cred_server.SDK.SECRET,
         code,
-        redirect_uri: "https://salestine-jevil25.vercel.app/Zoommeetstart"
+        redirect_uri: `${frontEndUrl}/Zoommeetstart`
       }),
     })
 
@@ -128,8 +129,6 @@ app.post("/api/callback", async (req, res) =>{
 
 //endpoint for starting a meet
 app.post("/api/start-meet", async (req, res) => {
-  console.log("this is acestok");
-  console.log("Bearer "+req.body.accessToken)
   try {
     // Make a POST request to the Zoom API's "start meeting" endpoint
     const response = await fetch("https://api.zoom.us/v2/users/me/meetings", {
@@ -165,12 +164,6 @@ app.post("/api/start-meet", async (req, res) => {
         { userId: result.host_id },
         { $push: { meetings: { meetingId: result.id }} }
       );
-      // const user = await User.findOne({ userId: result.host_id });
-      // console.log(user);
-      // await user.save();
-      // user = await User.findOne({ accessToken: req.body.accessToken });
-      // console.log(user);
-      // Send the meeting URL as the API response
       res.json({ result: result });
     } else {
       // Handle Zoom API error response
@@ -192,7 +185,6 @@ app.listen(port, () => {
 
 app.post("/api/getRecordings", async (req, res) => {
   try {
-    console.log(req.body.access_token);
     // Make a GET request to the Zoom API's "list recordings" endpoint
     const response = await fetch(
       `https://api.zoom.us/v2/users/me/recordings?page_size=30`,
@@ -276,8 +268,14 @@ app.post("/api/join-meet", async (req, res) => {
 );
 
 app.post("/api/zoomLogin", (req, res) => {
-  const params = "response_type=code&client_id="+Zoom_cred_server.SDK.KEY+"&redirect_uri=https://salestine-jevil25.vercel.app/login";
-  // console.log(params);
+  let params;
+  const email = req.body.email;
+  if (req.body.operation) {
+    params = "response_type=code&client_id="+Zoom_cred_server.SDK.KEY+`&redirect_uri=${frontEndUrl}/login`
+  }else{
+    params = "response_type=code&client_id="+Zoom_cred_server.SDK.KEY+`&redirect_uri=${frontEndUrl}/login`;
+  }
+    // console.log(params);
   res.json(
     `https://zoom.us/oauth/authorize?${params}` 
     );
@@ -295,6 +293,14 @@ app.post("/api/accessToken", async (req, res) =>{
   const credentials = `${clientId}:${clientSecret}`;
   const encodedCredentials = Buffer.from(credentials).toString("base64");
   const authorizationHeader = "Basic "+encodedCredentials;
+  const email = req.body.email;
+  console.log(req.body);
+
+  if(req.body.operation === "signup"){
+    var redirect_uri = `${frontEndUrl}register?operation=google`;
+  }else{
+    var redirect_uri = `${frontEndUrl}/login`;
+  }
 
   // console.log(authorizationHeader);
 
@@ -310,10 +316,10 @@ app.post("/api/accessToken", async (req, res) =>{
       body: querystring.stringify({
         code: code,
         grant_type: "authorization_code",
-        redirect_uri: "https://salestine-jevil25.vercel.app/login",
+        redirect_uri: redirect_uri,
       }),
     })
-
+    console.log(response);
     if (response.ok) {
       const { access_token,refresh_token,expires_in } = await response.json();
       // Calculate expiration time
@@ -327,46 +333,90 @@ app.post("/api/accessToken", async (req, res) =>{
         "Content-Type": "application/json",
         },
       });
+
       if (result.ok) {
+        console.log("result is ok");
         const data = await result.json();
-        const user = await User.findOne({email: data.email})
-        if(user === null){
-          const newUser = {
-            userId: data.id,
-            zoomEmail: data.email,
-            name: data.display_name,
-            provider: "Zoom",
-            meetings: [],
-            accessToken: access_token,
-            refreshToken: refresh_token,
-            tokenExpiry: expiryTime,
-            verified: true,
-            role: "user",
-            createdAt: new Date(),
-            organization: [],
-            sales: {
-              total: 0,
-              active: 0,
-              closed: 0,
-            }
-          };
-          User.create(newUser).then(()=> console.log("Created Successfully"))
-        }else{
-          User.findOneAndUpdate(
-            { email: data.email },
-            {
+        if(email){
+          const user = await User.findOne({email: email});
+          console.log(user);
+          console.log("update user");
+          if(user === null){
+            const newUser = {
+              userId: data.id,
+              zoomEmail: data.email,
+              email: email,
+              username: data.first_name + " " + data.last_name,
+              provider: "Salesine",
+              meetings: [],
               accessToken: access_token,
               refreshToken: refresh_token,
               tokenExpiry: expiryTime,
-            },
-            { new: true }
-          )
-            .then(updatedUser => {
-              // console.log("Updated user:", updatedUser);
-            })
-            .catch(err => {
-              console.error("Error updating user:", err);
+              verified: true,
+              role: "user",
+              createdAt: new Date(),
+              organization: [],
+              sales: {
+                total: 0,
+                active: 0,
+                closed: 0,
+              }
+            };
+            User.create(newUser).then(()=> console.log("Created Successfully"))
+          }else{
+            User.findOneAndUpdate(
+              { email: email },
+              {
+                accessToken: access_token,
+                refreshToken: refresh_token,
+                tokenExpiry: expiryTime,
+              },
+              { new: true }
+            ).then((user) => {
+              console.log("Updated Successfully");
             });
+          }
+        }else{
+          const user = await User.findOne({email: data.email})
+          if(user === null){
+            const newUser = {
+              userId: data.id,
+              zoomEmail: data.email,
+              email: data.email,
+              username: data.display_name,
+              provider: "Zoom",
+              meetings: [],
+              accessToken: access_token,
+              refreshToken: refresh_token,
+              tokenExpiry: expiryTime,
+              verified: true,
+              role: "user",
+              createdAt: new Date(),
+              organization: [],
+              sales: {
+                total: 0,
+                active: 0,
+                closed: 0,
+              }
+            };
+            User.create(newUser).then(()=> console.log("Created Successfully"))
+          }else{
+            User.findOneAndUpdate(
+              { email: data.email },
+              {
+                accessToken: access_token,
+                refreshToken: refresh_token,
+                tokenExpiry: expiryTime,
+              },
+              { new: true }
+            )
+              .then(updatedUser => {
+                // console.log("Updated user:", updatedUser);
+              })
+              .catch(err => {
+                console.error("Error updating user:", err);
+              });
+          }
         }
       }
       else{
@@ -522,7 +572,3 @@ app.post("/api/storeMeetId", async (req, res) => {
     );
   }
 });
-
-app.get("/",(req,res) => {
-  res.send("Hello World");
-})
