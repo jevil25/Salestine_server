@@ -12,7 +12,7 @@ const fetch = require("node-fetch");
 const User = require("./models/User");
 mongoDB();
 
-const frontEndUrl = "https://salestine-jevil25.vercel.app";
+const frontEndUrl = "https://salestine.vercel.app";
 app.use(cors(`${frontEndUrl}`));
 app.use(express.json());
 // console.log(Zoom_cred_server.SDK.KEY)
