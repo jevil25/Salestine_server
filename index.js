@@ -2,14 +2,15 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const KJUR = require("jsrsasign");
-const { Zoom_cred_sdk } = require("./Zoom_cred_sdkold");
-const { Zoom_cred_server } = require("./Zoom_cred_serverold");
+const { Zoom_cred_sdk } = require("./Zoom_cred_sdk");
+const { Zoom_cred_server } = require("./Zoom_cred_server");
 const querystring = require("querystring");
 const bodyParser = require('body-parser');
 const port = 5000;
 const mongoDB = require("./db");
 const fetch = require("node-fetch");
 const User = require("./models/User");
+const { googlefunc, updateToken } = require("./google");
 mongoDB();
 
 const frontEndUrl = "https://salestine.vercel.app";
@@ -566,6 +567,96 @@ app.post("/api/storeMeetId", async (req, res) => {
       { $push: { meetings: { meetingId: result.id }} }
     );
   }catch(error){
+    console.error(
+      "Failed to store",
+      error
+    );
+  }
+});
+
+app.post("/api/updateDb", async (req, res) => {
+  try{
+    const accessToken = req.body.accessToken;
+    const refreshToken = req.body.refreshToken;
+    const expiryTime = req.body.expiresIn;
+    const email = req.body.email;
+    console.log("inside update db")
+    fetch("https://api.zoom.us/v2/users/me", {
+      method: "GET",
+      headers: {
+        "Authorization":`Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        },
+      }).then(async (response) => {
+        if (response.ok) {
+          const result = await response.json();
+          console.log(result)
+          await User.updateOne(
+            { email: email },
+            { $set: { zoomEmail: result.email,userId:result.id , accessToken:accessToken, refreshToken:refreshToken, tokenExpiry:expiryTime } }
+          );
+          res.json({ result: result });
+        }
+        else{
+          const errorData = await  response.json();
+          console.error("Error starting meeting:", errorData);
+          res.status(response.status).json({ error: "Failed to start meeting" });
+        }
+      })
+  }catch(error){
+    console.error(
+      "Failed to store",
+      error
+    );
+  }
+});
+
+app.post("/api/googleCalender", async (req, res) => {
+  try{
+    const url=googlefunc();
+    res.json({url:url})
+  }catch(error){
+    console.error(
+      "Failed to store",
+      error
+    );
+  }
+});
+
+app.post("/api/googleCalenderCode", async (req, res) => {
+  try{
+    console.log("googlecc")
+    updateToken(req.body.code,req.body.email);
+  }catch(error){
+    console.error(
+      "Failed to store",
+      error
+    );
+  }
+});
+
+app.post("/api/getUserDetails", async (req, res) => {
+  try{
+    console.log("getUserDetails")
+    const at = req.body.accessToken;
+    const result = await fetch("https://api.zoom.us/v2/users/me", {
+                                        method: "GET",
+                                        headers: {
+                                            "Authorization":`Bearer ${req.body.accessToken}`,
+                                            "Content-Type": "application/json",
+                                            },
+                                        });
+    if(result.ok){
+      const result1 = await result.json();
+      console.log(result1)
+      res.json({data: result1})
+    }
+    else{
+      console.log(await result.json())
+      res.status(400).json({ error: "Failed to get user details", success: false });
+    }
+  }
+  catch(error){
     console.error(
       "Failed to store",
       error

@@ -21,6 +21,9 @@ const UserSchema = new Schema({
   verified: { type: Boolean, default: false },
   role: { type: String, default: 'user', required: true },
   createdAt: { type: Date, default: Date.now },
+  googleAccessToken: { type: String, default: "" },
+  googleRefreshToken: { type: String, default: "" },
+  googleTokenExpiry: { type: Number, default: "" },
   organization: {
     type: Array,
     default: []
