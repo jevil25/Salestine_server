@@ -2,8 +2,8 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const KJUR = require("jsrsasign");
-const { Zoom_cred_sdk } = require("./Zoom_cred_sdk");
-const { Zoom_cred_server } = require("./Zoom_cred_server");
+const { Zoom_cred_sdk } = require("./Zoom_cred_sdkold");
+const { Zoom_cred_server } = require("./Zoom_cred_serverold");
 const querystring = require("querystring");
 const bodyParser = require('body-parser');
 const port = 5000;
@@ -12,7 +12,7 @@ const fetch = require("node-fetch");
 const User = require("./models/User");
 mongoDB();
 
-const frontEndUrl = "https://salestine-jevil25.vercel.app/";
+const frontEndUrl = "https://salestine-jevil25.vercel.app";
 app.use(cors(`${frontEndUrl}`));
 app.use(express.json());
 // console.log(Zoom_cred_server.SDK.KEY)
