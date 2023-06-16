@@ -7,7 +7,7 @@ const googlefunc = () => {
 const credentials = {
   client_id: '172018680892-6gvojprocrq2ipguofsg5160j8dmsa4j.apps.googleusercontent.com',
   client_secret: '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',
-  redirect_uris: ['http://localhost:4000/']
+  redirect_uris: ['https://salestine.vercel.app/']
 };
 
 // Create an OAuth2 client

@@ -13,7 +13,7 @@ const User = require("./models/User");
 const { googlefunc, updateToken } = require("./google");
 mongoDB();
 
-const frontEndUrl = "http://localhost:4000";
+const frontEndUrl = "https://salestine.vercel.app";
 app.use(cors(`${frontEndUrl}`));
 app.use(express.json());
 // console.log(Zoom_cred_server.SDK.KEY)
