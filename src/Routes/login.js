@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 const { JWT_SECRET } = process.env;
-import UserModel from '../../models/User';
 import { Router } from 'express';
+const prisma = require("../utils/db/prisma");
 
 export default async function handler(req, res) {
   console.log(req.body)
@@ -11,7 +11,9 @@ export default async function handler(req, res) {
   const { email, password } = req.body;
 
   try {
-    const user = await UserModel.findOne({ email });
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { email },
+      });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -20,7 +22,10 @@ export default async function handler(req, res) {
     }
     const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '7d' });
     user.token = token;
-    await user.save();
+    await prisma.user.update({
+      where: { email },
+      data: { token },
+      });
     res.status(200).json({ message: 'Login successful', user});
   } catch (error) {
     console.error(error);
