@@ -1,31 +1,29 @@
-const express = require("express");
-const router = express.Router();
-const User = require("../models/User")
+import jwt from 'jsonwebtoken';
+const { JWT_SECRET } = process.env;
+import UserModel from '../../models/User';
+import { Router } from 'express';
 
-// router.post("/login",async (req, res) => {
+export default async function handler(req, res) {
+  console.log(req.body)
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+  const { email, password } = req.body;
 
-//     let email = req.body.email;
-
-//     try {
-//       let userData = await User.findOne({email})
-//       if(userData){
-//           if(req.body.password == userData.password){
-//              return res.json({success:true,message:"Logging in!"})
-//           }
-//           else{
-//             return res.json({success:false,message:"Incorrect password"})
-//           }
-//       }
-//       else{
-//           res.status(400).json({errors:"Enter the email!"})
-//       }
-  
-//       res.json({ success: true });
-//     } catch {
-//       console.log(errors);
-//       res.json({ success: false });
-//     }
-//   }
-// );
-
-module.exports = router
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+    if (user.password !== password) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '7d' });
+    user.token = token;
+    await user.save();
+    res.status(200).json({ message: 'Login successful', user});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
