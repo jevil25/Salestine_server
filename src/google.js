@@ -1,5 +1,5 @@
 const { google } = require('googleapis');
-const User = require('./models/User');
+const User = require('../models/User');
 
 let oauth2Client;
 const googlefunc = () => {

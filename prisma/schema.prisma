@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid()) @map("_id")
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      Role     @default(USER)
+  token     String
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+}
+
+model Company {
+  id         String    @id @default(cuid()) @map("_id")
+  name       String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  ownerId    String
+  active     Boolean
+  details    String
+  totalUsers Int
+  adminId    String
+  users      User[]
+  meeting    meeting[]
+}
+
+model meeting {
+  id            String   @id @default(cuid()) @map("_id")
+  topic         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  companyId     String
+  company       Company  @relation(fields: [companyId], references: [id])
+  start_time    DateTime @default(now())
+  duration      Int
+  meetingId     String   @unique
+  password      String
+  recordingLink String   @unique @default("")
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  USER
+  PRESIDENT
+  VICEPRESIDENT
+}

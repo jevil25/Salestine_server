@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon src/index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^4.16.0",
     "@zoomus/websdk": "^2.13.0",
     "cors": "^2.8.5",
     "dotenv": "^16.1.4",
@@ -20,5 +21,8 @@
     "mongoose": "^7.2.2",
     "node-fetch": "^2.6.11",
     "nodemon": "^2.0.22"
+  },
+  "devDependencies": {
+    "prisma": "^4.16.0"
   }
 }
