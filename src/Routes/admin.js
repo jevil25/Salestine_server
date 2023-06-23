@@ -1,11 +1,18 @@
 const prisma = require("../utils/db/prisma");
 const express = require("express");
-const app = express();
+const router = express.Router();
 
 //creata a rest api to get all the calls of a user of that particular admins company
 
-app.get("/getcalls", async (req, res) => {
+router.get("/", (req, res) => {
+    res.send("Hello Admin!");
+});
+
+router.get("/getcalls", async (req, res) => {
     const { email } = req.body;
+    if(!email){
+        res.status(404).json({ message: "Email not found." });
+    }
     //get company id of the admin
     const company = await prisma.company.findUnique({
         where: { email },
@@ -33,8 +40,11 @@ app.get("/getcalls", async (req, res) => {
 });
 
 //get users of a company
-app.get("/getusers", async (req, res) => {
+router.get("/getusers", async (req, res) => {
     const { email } = req.body;
+    if(!email){
+        res.status(404).json({ message: "Email not found." });
+    }
     //get company id of the admin
     const company = await prisma.company.findUnique({
         where: { email },
@@ -55,8 +65,11 @@ app.get("/getusers", async (req, res) => {
 });
 
 //add a user to a company and create with email and password given by admin
-app.post("/adduser", async (req, res) => {
+router.post("/adduser", async (req, res) => {
     const { email, password } = req.body;
+    if(!email || !password){
+        res.status(404).json({ message: "Email or password not found." });
+    }
     //get company id of the admin
     const company = await prisma.company.findUnique({
         where: { email },
@@ -81,8 +94,11 @@ app.post("/adduser", async (req, res) => {
 });
 
 //delete a user from a company
-app.delete("/deleteuser", async (req, res) => {
+router.delete("/deleteuser", async (req, res) => {
     const { email } = req.body;
+    if(!email){
+        res.status(404).json({ message: "Email not found." });
+    }
     //get company id of the admin
     const company = await prisma.company.findUnique({
         where: { email },
@@ -101,3 +117,5 @@ app.delete("/deleteuser", async (req, res) => {
     //return the user
     res.status(200).json(user);
 }); 
+
+module.exports = router;
