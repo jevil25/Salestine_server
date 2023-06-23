@@ -17,6 +17,7 @@ app.use("/googleAuth", require("./Routes/googleAuth"));
 app.use("/validate", require("./Routes/validate"));
 app.use("/admin", require("./Routes/admin"));
 app.use("/superadmin", require("./Routes/superadmin"));
+app.use("/recordings", require("./Routes/recordings"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
