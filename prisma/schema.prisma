@@ -34,8 +34,8 @@ model Company {
   updatedAt  DateTime  @updatedAt
   ownerId    String    @unique
   active     Boolean   @default(false)
-  details    String
-  totalUsers Int
+  details    String    @default("")
+  totalUsers Int       @default(0)
   adminId    String
   users      User[]
   meeting    meeting[]
