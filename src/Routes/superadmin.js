@@ -240,4 +240,19 @@ router.post("/activecompany", async (req, res) => {
     res.status(200).json(company);
 });
 
+router.post("/checksuperadmin", async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        res.status(404).json({ message: "Email not found." });
+    }
+    const user = await prisma.user.findUnique({
+        where: { email:email },
+    });
+    if (user.role !== "SUPERADMIN") {
+        res.status(404).json(false);
+        return;
+    }
+    res.status(200).json(true);
+});
+
 module.exports = router;
