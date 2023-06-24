@@ -22,13 +22,14 @@ model User {
   googleAccessToken    String?
   googleRefreshToken   String?
   googleTokenExpiresAt DateTime?
-  companyId            String
-  company              Company   @relation(fields: [companyId], references: [id])
+  companyId            String?
+  company              Company?  @relation(fields: [companyId], references: [id])
 }
 
 model Company {
   id         String    @id @default(cuid()) @map("_id")
   name       String
+  email      String    @unique
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   ownerId    String    @unique
@@ -58,6 +59,7 @@ model meeting {
 enum Role {
   SUPERADMIN
   ADMIN
+  OWNER
   USER
   PRESIDENT
   VICEPRESIDENT
