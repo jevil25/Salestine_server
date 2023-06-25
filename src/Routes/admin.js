@@ -40,25 +40,37 @@ router.get("/getcalls", async (req, res) => {
 });
 
 //get users of a company
-router.get("/getusers", async (req, res) => {
+router.post("/getusers", async (req, res) => {
     const { email } = req.body;
+    console.log(email);
     if(!email){
-        res.status(404).json({ message: "Email not found." });
+        return res.status(404).json({ message: "Email not found.",status: false });
     }
-    //get company id of the admin
-    const company = await prisma.company.findUnique({
+    //get user id from email
+    const user = await prisma.user.findUnique({
         where: { email },
     });
+    if (!user) {
+        return res.status(404).json({ message: "User not found.",status: false });
+    }
+    if(user.role !== "ADMIN"){
+        return res.status(404).json({ message: "User is not an admin.",status: false });
+    }
+    console.log(user);
+    //get company of the admin
+    const company = await prisma.company.findFirst({
+        where: { adminId: user.id },
+    });
     if (!company) {
-        res.status(404).json({ message: "Company not found." });
+        return res.status(404).json({ message: "Company not found.",status: false });
     }
     const company_id = company.id;
     //get all the users of that company
     const users = await prisma.user.findMany({
-        where: { company_id },
+        where: { companyId : company_id },
     });
     if (!users) {
-        res.status(404).json({ message: "Users not found." });
+        return res.status(404).json({ message: "Users not found.",status: false });
     }
     //return the users
     res.status(200).json(users);
@@ -66,31 +78,34 @@ router.get("/getusers", async (req, res) => {
 
 //add a user to a company and create with email and password given by admin
 router.post("/adduser", async (req, res) => {
-    const { email, password } = req.body;
-    if(!email || !password){
-        res.status(404).json({ message: "Email or password not found." });
+    const { email, password,name,role,admin_email } = req.body;
+    console.log(req.body);
+    if(!email || !password || !name || !role || !admin_email){
+        return res.status(404).json({ message: "Email or password not found." });
     }
     //get company id of the admin
-    const company = await prisma.company.findUnique({
-        where: { email },
+    const user = await prisma.user.findUnique({
+        where: { email: admin_email.adminEmail },
     });
-    if (!company) {
-        res.status(404).json({ message: "Company not found." });
+    if (!user) {
+        return res.status(404).json({ message: "Admin not found." });
     }
-    const company_id = company.id;
-    //create a user with email and password
-    const user = await prisma.user.create({
+    const company_id = user.companyId;
+    //create a user with the given email and password
+    const newUser = await prisma.user.create({
         data: {
             email,
             password,
-            company_id,
+            name,
+            role,
+            companyId: company_id,
         },
     });
-    if (!user) {
-        res.status(404).json({ message: "User not found." });
+    if (!newUser) {
+        return res.status(404).json({ message: "User not created." });
     }
     //return the user
-    res.status(200).json(user);
+    return res.status(200).json(newUser);
 });
 
 //delete a user from a company
@@ -99,17 +114,9 @@ router.delete("/deleteuser", async (req, res) => {
     if(!email){
         res.status(404).json({ message: "Email not found." });
     }
-    //get company id of the admin
-    const company = await prisma.company.findUnique({
-        where: { email },
-    });
-    if (!company) {
-        res.status(404).json({ message: "Company not found." });
-    }
-    const company_id = company.id;
-    //delete the user
-    const user = await prisma.user.delete({
-        where: { email },
+    //delete the users in array email
+    const user = await prisma.user.deleteMany({
+        where: { email: email.map((email) => email) },
     });
     if (!user) {
         res.status(404).json({ message: "User not found." });
