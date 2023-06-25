@@ -147,4 +147,24 @@ router.post("/checkadmin", async (req, res) => {
     }
 });
 
+router.post("/edituser", async (req, res) => {
+    const { email, name, role } = req.body;
+    if(!email || !name || !role){
+        return res.status(404).json({ message: "Email or name or role not found." });
+    }
+    //update the user
+    const user = await prisma.user.update({
+        where: { email },
+        data: {
+            name,
+            role,
+        },
+    });
+    if (!user) {
+        return res.status(404).json({ message: "User not found." });
+    }
+    //return the user
+    return res.status(200).json(user);
+});
+
 module.exports = router;
