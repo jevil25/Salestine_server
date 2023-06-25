@@ -111,18 +111,20 @@ router.post("/adduser", async (req, res) => {
 //delete a user from a company
 router.delete("/deleteuser", async (req, res) => {
     const { email } = req.body;
+    console.log(email);
     if(!email){
-        res.status(404).json({ message: "Email not found." });
+        return res.status(404).json({ message: "Email not found." });
     }
     //delete the users in array email
-    const user = await prisma.user.deleteMany({
-        where: { email: email.map((email) => email) },
+    email.map(async (email1) => {
+        const user = await prisma.user.delete({
+            where: { email:email1 },
+        });
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
     });
-    if (!user) {
-        res.status(404).json({ message: "User not found." });
-    }
-    //return the user
-    res.status(200).json(user);
+    res.status(200).json({ message: "User deleted." });
 }); 
 
 router.post("/checkadmin", async (req, res) => {
