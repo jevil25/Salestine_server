@@ -118,4 +118,24 @@ router.delete("/deleteuser", async (req, res) => {
     res.status(200).json(user);
 }); 
 
+router.post("/checkadmin", async (req, res) => {
+    const { email } = req.body;
+    if(!email){
+        res.status(404).json({ message: "Email not found.", status: false });
+    }
+    //check if role is admin
+    const user = await prisma.user.findUnique({
+        where: { email },
+    });
+    if (!user) {
+        res.status(404).json({ message: "User not found.", status: false });
+    }
+    if(user.role === "ADMIN"){
+        res.status(200).json({ message: "Admin", status: true });
+    }
+    else{
+        res.status(200).json({ message: "Not Admin", status: false });
+    }
+});
+
 module.exports = router;

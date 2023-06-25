@@ -23,6 +23,8 @@ model User {
   googleRefreshToken   String?
   googleTokenExpiresAt DateTime?
   companyId            String?
+  activeDeals          Int       @default(0)
+  closedDeals          Int       @default(0)
   company              Company?  @relation(fields: [companyId], references: [id])
 }
 
