@@ -4,7 +4,11 @@ const prisma = require("../utils/db/prisma");
 
 async function handler(req, res) {
     console.log(req.body);
-    const { refresh_token,email } = req.body;
+    const { email } = req.body;
+    const user = await prisma.user.findUnique({
+        where:{ email }
+    });
+    const refresh_token = user.googleRefreshToken;
     if(!refresh_token || !email){
         return res.status(400).json({message: "Missing refresh_token or email"});
     }
