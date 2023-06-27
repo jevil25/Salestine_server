@@ -11,21 +11,22 @@ datasource db {
 }
 
 model User {
-  id                 String   @id @default(cuid()) @map("_id")
+  id                 String    @id @default(cuid()) @map("_id")
   name               String
-  email              String   @unique
+  email              String    @unique
   password           String
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  role               Role     @default(USER)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  role               Role      @default(USER)
   token              String?
   googleAccessToken  String?
   googleRefreshToken String?
   googleTokenExpiry  Int?
   companyId          String?
-  activeDeals        Int      @default(0)
-  closedDeals        Int      @default(0)
-  company            Company? @relation(fields: [companyId], references: [id])
+  activeDeals        Int       @default(0)
+  closedDeals        Int       @default(0)
+  company            Company?  @relation(fields: [companyId], references: [id])
+  meeting            meeting[]
 }
 
 model Company {
@@ -54,6 +55,7 @@ model meeting {
   duration      Int       @default(60)
   meetid        String    @unique
   meetHostId    String
+  user          User      @relation(fields: [meetHostId], references: [id])
   meetPassword  String
   recordingLink String?   @unique @default("")
   comments      comment[]

@@ -5,9 +5,13 @@ async function handler(req, res) {
   try {
     const meeting = await prisma.meeting.findUnique({
         where: {
-            meet_id: meet_id
+            id: meet_id
+        },
+        include: {
+            comments: true
         }
     });
+    console.log(meeting);
 
     if (!meeting) {
       return res.status(404).json({ message: 'Meeting not found',status:400 });

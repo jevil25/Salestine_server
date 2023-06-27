@@ -1,13 +1,18 @@
 const prisma = require("../utils/db/prisma");
 
 async function handler(req,res){
-    if (req.method !== 'GET') {
-        return res.status(405).json({ message: 'Method not allowed' });
-    }
 
     try {
         // Retrieve all objects from the "recordings" collection
-        const allRecordings = await prisma.meeting.findMany({});
+        const { email } = req.body;
+        const user = await prisma.user.findUnique({
+            where: { email },
+        });
+        const allRecordings = await prisma.meeting.findMany({
+            where: { 
+              meetHostId: user.id
+            }
+        });
     
         // Do something with the "allRecordings" variable
         console.log("yooo")
