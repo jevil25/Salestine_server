@@ -19,6 +19,8 @@ app.use("/admin", require("./Routes/admin"));
 app.use("/superadmin", require("./Routes/superadmin"));
 app.use("/recordings", require("./Routes/recordings"));
 app.use("/googleAccessToken", require("./Routes/googleAccessToken"));
+app.use("/sendmessage", require("./Routes/Sendmessage"));
+app.use("/getonerecord", require("./Routes/getonerecocord"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

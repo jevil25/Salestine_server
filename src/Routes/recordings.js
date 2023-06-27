@@ -1,46 +1,26 @@
 const prisma = require("../utils/db/prisma");
-const express = require("express");
-const router = express.Router();
 
-router.get("/", (req, res) => {
-    res.send("Hello User!");
-});
+async function handler(req,res){
+    if (req.method !== 'GET') {
+        return res.status(405).json({ message: 'Method not allowed' });
+    }
 
-//get meetings of particular user
-router.get("/getmeetings", async (req, res) => {
-    const { email } = req.body;
-    if(!email){
-        res.status(404).json({ message: "Email not found." });
-    }
-    const user = await prisma.user.findUnique({
-        where: { email },
-    });
-    if (!user) {
-        res.status(404).json({ message: "User not found." });
-    }
-    const user_id = user.id;
-    const meetings = await prisma.meeting.findMany({
-        where: { user_id },
-    });
-    if (!meetings) {
-        res.status(404).json({ message: "Meetings not found." });
-    }
-    res.status(200).json(meetings);
-});
+    try {
+        // Retrieve all objects from the "recordings" collection
+        const allRecordings = await prisma.meeting.findMany({});
+    
+        // Do something with the "allRecordings" variable
+        console.log("yooo")
+        console.log(allRecordings);
+    
+        // Return a response
+        res.status(200).json({ recordings: allRecordings });
+      } catch (error) {
+        // Handle any errors that occurred during the operation
+        console.error('Error retrieving recordings:', error);
+        res.status(500).json({ error: 'Failed to retrieve recordings' });
+      }
+    
+}
 
-//get details of a particular meeting
-router.get("/getmeeting", async (req, res) => {
-    const { meeting_id } = req.body;
-    if(!meeting_id){
-        res.status(404).json({ message: "Meeting ID not found." });
-    }
-    const meeting = await prisma.meeting.findUnique({
-        where: { id: meeting_id },
-    });
-    if (!meeting) {
-        res.status(404).json({ message: "Meeting not found." });
-    }
-    res.status(200).json(meeting);
-});
-
-module.exports = router;
+module.exports = handler;
