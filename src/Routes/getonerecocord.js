@@ -13,6 +13,7 @@ async function handler(req, res) {
     });
     console.log(meeting);
 
+
     if (!meeting) {
       return res.status(404).json({ message: 'Meeting not found',status:400 });
     }
