@@ -44,18 +44,28 @@ model Company {
 }
 
 model meeting {
-  id            String   @id @default(cuid()) @map("_id")
-  topic         String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  companyId     String
-  company       Company  @relation(fields: [companyId], references: [id])
-  start_time    DateTime @default(now())
-  duration      Int      @default(60)
-  meetingId     String   @unique
-  password      String
-  recordingLink String?  @unique @default("")
-  comments      Json[] //{ author: String, comment: String, createdAt: DateTime }[]
+  id            String    @id @default(cuid()) @map("_id")
+  topic         String    @default("")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  companyid     String
+  company       Company   @relation(fields: [companyid], references: [id])
+  startTime     DateTime  @default(now())
+  duration      Int       @default(60)
+  meetid        String    @unique
+  meetHostId    String
+  meetPassword  String
+  recordingLink String?   @unique @default("")
+  comments      comment[]
+}
+
+model comment {
+  id        String   @id @default(cuid()) @map("_id")
+  author    String
+  text      String
+  timestamp DateTime @default(now())
+  meetingId String
+  meeting   meeting  @relation(fields: [meetingId], references: [id])
 }
 
 enum Role {
