@@ -12,8 +12,8 @@ async function handler(req, res) {
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: "offline",
       scope: [
-        "https://www.googleapis.com/auth/calendar.readonly",
-        "https://www.googleapis.com/auth/calendar.events.readonly",
+        "https://www.googleapis.com/auth/calendar",
+        "https://www.googleapis.com/auth/calendar.events",
       ],
     });
     res.send({ url:authUrl });

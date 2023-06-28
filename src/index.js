@@ -21,6 +21,7 @@ app.use("/recordings", require("./Routes/recordings"));
 app.use("/googleAccessToken", require("./Routes/googleAccessToken"));
 app.use("/sendmessage", require("./Routes/Sendmessage"));
 app.use("/getonerecord", require("./Routes/getonerecocord"));
+app.use("/calender", require("./Routes/googlecalender"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
