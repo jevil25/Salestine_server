@@ -5,7 +5,7 @@ async function handler(req, res) {
   let meet_id = req.body.meet_id;
   const meeting = await prism.meeting.findUnique({
     where: {
-        meetid: meet_id,
+        id: meet_id,
         },
     include: {
         comments: true,
@@ -30,7 +30,6 @@ async function handler(req, res) {
                     create: {
                         author: author,
                         text: text,
-                        timestamp: timestamp,
                     },
                 },
             },
@@ -43,34 +42,24 @@ async function handler(req, res) {
           .status(200)
           .json({ message: "Message sent successfully", updatedMeeting });
       } catch (error) {
-        console.error("Error sending message:", error);
+        console.log("Error sending message:", error);
         return res.status(500).json({ message: "Server error" });
       }
     } 
     else if (req.body.flag == "delete") {
       let commentid = req.body.id;
-      let email = req.body.email;
 
    try{
-    const meet = await prism.meeting.update({
+      const meet = await prism.comment.delete({
         where: {
-            id: meet_id,
+          id: commentid,
         },
-        data: {
-            comments: {
-                delete: {
-                    id: commentid,
-                }
-            }
-        },
-        include: {
-            comments: true,
-        },
-    });
+      });
+      console.log(meet);
       if (!meet) {
         return res.status(400).json({ err: "Comment not found" });
       } else {
-        return res.status(200).json(meet);
+        return res.status(200).json({ message: "Comment deleted successfully"});
       }
     }catch (error) {
       console.error('Error deleting comment:', error);
