@@ -10,7 +10,7 @@ async function handler(req,res){
         });
         const allRecordings = await prisma.meeting.findMany({
             where: { 
-              meetHostId: user.id
+              companyid: user.companyId,
             }
         });
     
