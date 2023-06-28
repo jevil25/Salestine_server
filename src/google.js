@@ -5,9 +5,9 @@ let oauth2Client;
 const googlefunc = () => {
 // Set up OAuth client credentials
 const credentials = {
-  client_id: '172018680892-6gvojprocrq2ipguofsg5160j8dmsa4j.apps.googleusercontent.com',
-  client_secret: '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',
-  redirect_uris: ['https://salestine.vercel.app/']
+  client_id: process.env.GOOGLE_CLIENT_ID,
+  client_secret: process.env.GOOGLE_CLIENT_SECRET,
+  redirect_uris: [process.env.GOOGLE_REDIRECT_URI]
 };
 
 // Create an OAuth2 client
