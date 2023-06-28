@@ -57,7 +57,7 @@ model meeting {
   meetHostId    String
   user          User      @relation(fields: [meetHostId], references: [id])
   meetPassword  String
-  recordingLink String?   @unique @default("")
+  recordingLink String?   @default("")
   comments      comment[]
 }
 
