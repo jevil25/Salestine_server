@@ -22,6 +22,8 @@ app.use("/googleAccessToken", require("./Routes/googleAccessToken"));
 app.use("/sendmessage", require("./Routes/Sendmessage"));
 app.use("/getonerecord", require("./Routes/getonerecocord"));
 app.use("/calender", require("./Routes/googlecalender"));
+app.use("/diarizer", require("./Routes/diarizer"));
+app.use("/transcribe", require("./Routes/transcribe"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");

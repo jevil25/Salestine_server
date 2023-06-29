@@ -45,20 +45,21 @@ model Company {
 }
 
 model meeting {
-  id            String    @id @default(cuid()) @map("_id")
-  topic         String    @default("")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  companyid     String
-  company       Company   @relation(fields: [companyid], references: [id])
-  startTime     DateTime  @default(now())
-  duration      Int       @default(60)
-  meetid        String    @unique
-  meetHostId    String
-  user          User      @relation(fields: [meetHostId], references: [id])
-  meetPassword  String
-  recordingLink String?   @default("")
-  comments      comment[]
+  id                     String    @id @default(cuid()) @map("_id")
+  topic                  String    @default("")
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  companyid              String
+  company                Company   @relation(fields: [companyid], references: [id])
+  startTime              DateTime  @default(now())
+  duration               Int       @default(60)
+  meetid                 String    @unique
+  meetHostId             String
+  user                   User      @relation(fields: [meetHostId], references: [id])
+  meetPassword           String
+  recordingLink          String?   @default("")
+  transcriptionCompleted Boolean   @default(false)
+  comments               comment[]
 }
 
 model comment {
