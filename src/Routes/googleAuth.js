@@ -14,6 +14,8 @@ async function handler(req, res) {
       scope: [
         "https://www.googleapis.com/auth/calendar",
         "https://www.googleapis.com/auth/calendar.events",
+        "https://www.googleapis.com/auth/drive",
+        "https://www.googleapis.com/auth/drive.file",
       ],
     });
     res.send({ url:authUrl });
@@ -31,6 +33,7 @@ async function handler(req, res) {
         console.log(err);
         res.send({message: err})
       }
+      console.log(authToken);
       const user = await prisma.user.update({
         where: { email },
         data: { 

@@ -4,14 +4,25 @@ const fs = require('fs');
 const fetch = require('node-fetch');
 const prisma = require("../utils/db/prisma");
 const ffmpeg = require('fluent-ffmpeg');
+const handler = require('../utils/google/getAccessToken');
 
-function convert(input, output, callback) {
+async function convert(input, output, callback) {
+  await handler();
+  const accessToken = await prisma.user.findUnique({
+    where: { email:process.env.DRIVE_EMAIL },
+  });
+  console.log(accessToken);
+  console.log(input);
   axios({
     method: 'GET',
     url: input,
     responseType: 'stream',
+    headers: {
+      Authorization: `Bearer ${accessToken.googleAccessToken}`
+    }
   })
     .then((response) => {
+      console.log(response);
       // Pipe the downloaded video to FFmpeg for conversion
       ffmpeg(response.data)
         .format('wav')
@@ -30,7 +41,7 @@ function convert(input, output, callback) {
     });
 }
 
-async function handler(req, res) {
+async function diarizer(req, res) {
   const meets = await prisma.meeting.findMany({
     where: {
       transcriptionCompleted: false,
@@ -44,9 +55,10 @@ async function handler(req, res) {
   meets.map(async (meet) => {
     const { id, recordingLink,numberOfSpeakers } = meet;
     //get id from recordingLink
-    const rid = recordingLink.split('d/')[1].split('/')[0];
+    // const rid = recordingLink.split('d/')[1].split('/')[0];
+    const rid ="1QihwDMxSXfmY8HFU42JmlX_srNmtr_W3"
     console.log(rid);
-    convert(recordingLink, `./${id}.wav`, async function(err){
+    convert(`https://www.googleapis.com/drive/v3/files/${rid}?key=${process.env.DRIVE_KEY}`, `./${id}.wav`, async function(err){
       if(!err) {
           console.log('conversion complete');
           let data = new FormData();
@@ -96,4 +108,4 @@ async function handler(req, res) {
   )
 }
 
-module.exports = handler;
+module.exports = diarizer;
