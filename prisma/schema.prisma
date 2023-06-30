@@ -45,21 +45,24 @@ model Company {
 }
 
 model meeting {
-  id                     String    @id @default(cuid()) @map("_id")
-  topic                  String    @default("")
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  id                     String       @id @default(cuid()) @map("_id")
+  topic                  String       @default("")
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
   companyid              String
-  company                Company   @relation(fields: [companyid], references: [id])
-  startTime              DateTime  @default(now())
-  duration               Int       @default(60)
-  meetid                 String    @unique
+  company                Company      @relation(fields: [companyid], references: [id])
+  startTime              DateTime     @default(now())
+  duration               Int          @default(60)
+  meetid                 String       @unique
   meetHostId             String
-  user                   User      @relation(fields: [meetHostId], references: [id])
+  user                   User         @relation(fields: [meetHostId], references: [id])
   meetPassword           String
-  recordingLink          String?   @default("")
-  transcriptionCompleted Boolean   @default(false)
+  recordingLink          String?      @default("")
+  transcriptionCompleted Boolean      @default(false)
+  transcriptionRequested Boolean      @default(false)
+  numberOfSpeakers       Int          @default(1)
   comments               comment[]
+  transcript             transcript[]
 }
 
 model comment {
@@ -67,6 +70,17 @@ model comment {
   author    String
   text      String
   timestamp DateTime @default(now())
+  meetingId String
+  meeting   meeting  @relation(fields: [meetingId], references: [id])
+}
+
+model transcript {
+  id        String   @id @default(cuid()) @map("_id")
+  text      String
+  timestamp DateTime @default(now())
+  startTime String
+  endTime   String
+  speaker   Int
   meetingId String
   meeting   meeting  @relation(fields: [meetingId], references: [id])
 }
