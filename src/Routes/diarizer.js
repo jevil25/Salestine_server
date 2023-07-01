@@ -118,8 +118,8 @@ async function diarizer(req, res) {
                 meetingId: id
               }
             })
+            console.log(transcript);
           });
-          console.log(transcript);
         });
         res.send(json)
         }
