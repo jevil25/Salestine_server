@@ -1,9 +1,9 @@
 const { google } = require("googleapis");
 const prisma = require("../db/prisma");
+const { default: fetch } = require("node-fetch");
 
-async function handler() {
-  const email = process.env.DRIVE_EMAIL;
-  console.log(email);
+async function handler(email) {
+  // console.log(email);
 
   const user = await prisma.user.findUnique({
     where: { email },
@@ -15,52 +15,44 @@ async function handler() {
   }
 
   const refresh_token = user.googleRefreshToken;
-  const expiry_date = user.googleTokenExpiry;
-  const access_token = user.googleAccessToken;
 
   if (!refresh_token || !email) {
     console.log("Missing refresh_token or email");
     return;
   }
 
-  const oAuth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI
+  return fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        client_id: process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        refresh_token,
+        grant_type: "refresh_token",
+        }),
+      })
+      .then((res) => res.json())
+      .then(async (json) => {
+        // console.log(json);
+        const { access_token, expires_in } = json;
+        await prisma.user.update({
+          where: { email },
+          data: {
+            googleAccessToken: access_token,
+            googleTokenExpiry: expires_in,
+          },
+        });
+        console.log("Updated access token");
+        // console.log(access_token);
+        return access_token;
+      }
+    )
+    .catch((err) => {
+      console.log(err);
+    }
   );
-
-  oAuth2Client.setCredentials({ 
-    refresh_token: refresh_token,
-    forceRefreshOnFailure: true
-  });
-  try {
-    console.log("try");
-    oAuth2Client.on('tokens', async (tokens) => {
-      console.log("tokens");
-      if (tokens.refresh_token) {
-        // store the refresh_token in my database!
-        console.log(tokens.refresh_token);
-        const user = await prisma.user.update({
-          where: { email },
-          data: {
-            googleRefreshToken: tokens.refresh_token,
-          },
-        });
-      }
-      console.log(tokens.access_token);
-      if(tokens.access_token) {
-        const user = await prisma.user.update({
-          where: { email },
-          data: {
-            googleAccessToken: tokens.access_token,
-            googleTokenExpiry: tokens.expiry_date,
-          },
-        });
-      }
-      });
-    } catch (error) {
-    console.error("Failed to refresh access token:", error);
-  }
 }
 
 module.exports = handler;

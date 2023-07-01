@@ -8,48 +8,51 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
 ffmpeg.setFfmpegPath(ffmpegPath);
 
+
 async function convert(input, output, rid, callback) {
-  await handler();
-  const accessToken = await prisma.user.findUnique({
-    where: { email:process.env.DRIVE_EMAIL },
-  });
-  console.log(accessToken);
-  console.log("Fetching video from drive");
-  axios({
-    method: 'GET',
-    url: input,
-    responseType: 'arraybuffer',
-    headers: {
-      Authorization: `Bearer ya29.a0AbVbY6N-ulsRhOqbobHf-jtICBm7_tmeApTQPNWvsbxDF2wz5Kl3vIqe3N0abLvuu8mhKFOWntMyRMBes5pJbWRRJ37Hwprzm8_W_zjx58xG8Abuz_A2kRVbgnw77XuKfWSY0D3G5hm63g91N2q5yBi717V3PgaCgYKAQ0SARISFQFWKvPlibuMQ70p2mvB1y0LKKTCow0165`,
-    }
-  })
-    .then((response) => {
-      console.log(response.status);
-      console.log(response.statusText);
-      const fileData = Buffer.from(response.data);
-      fs.writeFileSync(`${rid}.mp4`, fileData)
-      // Pipe the downloaded video to FFmpeg for conversion
-      //convert to audio wav file
-      console.log("converting to audio")
-      ffmpeg(`${rid}.mp4`).noVideo()
-        .toFormat('mp3')
-        .on('error', (err) => {
-          console.log('An error occurred: ' + err.message);
-        }
-        )
-        .on('end', () => {
-          console.log('Processing finished !');
-          //delete mp4 file
-          fs.unlinkSync(`${rid}.mp4`);
-          callback(null);
-        }
-        )
-        .saveToFile(output);
+  try {
+    const accessToken = await(handler(process.env.DRIVE_EMAIL));;
+    // console.log(accessToken);
+    console.log("Fetching video from drive");
+    axios({
+      method: 'GET',
+      url: input,
+      responseType: 'arraybuffer',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      }
     })
-    .catch((err) => {
-      console.error('Error during download:',err.response.status,err.response.statusText,err.response.headers);
-      return callback(err.message);
-    });
+      .then((response) => {
+        console.log(response.status);
+        console.log(response.statusText);
+        const fileData = Buffer.from(response.data);
+        fs.writeFileSync(`${rid}.mp4`, fileData)
+        // Pipe the downloaded video to FFmpeg for conversion
+        //convert to audio wav file
+        console.log("converting to audio")
+        ffmpeg(`${rid}.mp4`).noVideo()
+          .toFormat('mp3')
+          .on('error', (err) => {
+            console.log('An error occurred: ' + err.message);
+          }
+          )
+          .on('end', () => {
+            console.log('Processing finished !');
+            //delete mp4 file
+            fs.unlinkSync(`${rid}.mp4`);
+            callback(null);
+          }
+          )
+          .saveToFile(output);
+      })
+      .catch((err) => {
+        console.error('Error during download:',err.response.status,err.response.statusText,err.response.headers);
+        return callback(err.message);
+      });
+    }
+    catch (err) {
+      console.log(err);
+    }
 }
 
 async function diarizer(req, res) {
@@ -105,10 +108,19 @@ async function diarizer(req, res) {
             let start_time = item.start_time;
             let end_time = item.end_time;
             let text = item.text;
-            console.log(speaker, start_time, end_time, text);
+            //store to db
+            prisma.transcription.create({
+              data: {
+                speaker,
+                start_time,
+                end_time,
+                text,
+                meetingId: id
+              }
             })
           });
-          res.send(json)
+        });
+        res.send(json)
         }
         else{
           res.send(err)
