@@ -3,41 +3,52 @@ const FormData = require('form-data');
 const fs = require('fs');
 const fetch = require('node-fetch');
 const prisma = require("../utils/db/prisma");
-const ffmpeg = require('fluent-ffmpeg');
 const handler = require('../utils/google/getAccessToken');
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const ffmpeg = require('fluent-ffmpeg');
+ffmpeg.setFfmpegPath(ffmpegPath);
 
-async function convert(input, output, callback) {
+async function convert(input, output, rid, callback) {
   await handler();
   const accessToken = await prisma.user.findUnique({
     where: { email:process.env.DRIVE_EMAIL },
   });
   console.log(accessToken);
-  console.log(input);
+  console.log("Fetching video from drive");
   axios({
     method: 'GET',
     url: input,
-    responseType: 'stream',
+    responseType: 'arraybuffer',
     headers: {
-      Authorization: `Bearer ${accessToken.googleAccessToken}`
+      Authorization: `Bearer ya29.a0AbVbY6N-ulsRhOqbobHf-jtICBm7_tmeApTQPNWvsbxDF2wz5Kl3vIqe3N0abLvuu8mhKFOWntMyRMBes5pJbWRRJ37Hwprzm8_W_zjx58xG8Abuz_A2kRVbgnw77XuKfWSY0D3G5hm63g91N2q5yBi717V3PgaCgYKAQ0SARISFQFWKvPlibuMQ70p2mvB1y0LKKTCow0165`,
     }
   })
     .then((response) => {
-      console.log(response);
+      console.log(response.status);
+      console.log(response.statusText);
+      const fileData = Buffer.from(response.data);
+      fs.writeFileSync(`${rid}.mp4`, fileData)
       // Pipe the downloaded video to FFmpeg for conversion
-      ffmpeg(response.data)
-        .format('wav')
-        .on('end', () => {
-          console.log('Conversion completed.');
-          // Remove the downloaded video file
-          fs.unlinkSync('video.mp4');
-        })
+      //convert to audio wav file
+      console.log("converting to audio")
+      ffmpeg(`${rid}.mp4`).noVideo()
+        .toFormat('mp3')
         .on('error', (err) => {
-          console.error('Error during conversion:', err);
-        })
-        .save(output);
+          console.log('An error occurred: ' + err.message);
+        }
+        )
+        .on('end', () => {
+          console.log('Processing finished !');
+          //delete mp4 file
+          fs.unlinkSync(`${rid}.mp4`);
+          callback(null);
+        }
+        )
+        .saveToFile(output);
     })
     .catch((err) => {
-      console.error('Error during download:', err);
+      console.error('Error during download:',err.response.status,err.response.statusText,err.response.headers);
+      return callback(err.message);
     });
 }
 
@@ -55,14 +66,14 @@ async function diarizer(req, res) {
   meets.map(async (meet) => {
     const { id, recordingLink,numberOfSpeakers } = meet;
     //get id from recordingLink
-    // const rid = recordingLink.split('d/')[1].split('/')[0];
-    const rid ="1QihwDMxSXfmY8HFU42JmlX_srNmtr_W3"
+    const rid = recordingLink.split('d/')[1].split('/')[0];
+    // const rid ="1QihwDMxSXfmY8HFU42JmlX_srNmtr_W3"
     console.log(rid);
-    convert(`https://www.googleapis.com/drive/v3/files/${rid}?key=${process.env.DRIVE_KEY}`, `./${id}.wav`, async function(err){
+    convert(`https://www.googleapis.com/drive/v3/files/${rid}?alt=media`, `./${id}.mp3`,rid, async function(err){
       if(!err) {
           console.log('conversion complete');
           let data = new FormData();
-          data.append('audio_data', fs.createReadStream(`./${id}.wav`));
+          data.append('audio_data', fs.createReadStream(`./${id}.mp3`));
           data.append('num_speaker', numberOfSpeakers);
           
           let config = {
@@ -75,6 +86,7 @@ async function diarizer(req, res) {
             data : data
           };
         
+          console.log("Sending data to asr")
           const response =  await fetch(config.url, {
               method: config.method,
               headers:{
@@ -83,13 +95,8 @@ async function diarizer(req, res) {
               body: data
           });
           const json = await response.json();
-          // const json = {
-          //   status: true,
-          //   descript: '',
-          //   data: [
-          //     "[{\"speaker\": \"speaker_0\", \"start_time\": \"0.28\", \"end_time\": 7.12, \"text\": \"hello hello my name is adam hello hello hello\"}, {\"speaker\": \"speaker_1\", \"start_time\": 7.88, \"end_time\": 9.04, \"text\": \"hello hello hello\"}]"
-          //   ]
-          // }
+          //delete wav file
+          fs.unlinkSync(`./${id}.mp3`);
           console.log(json);
           json.data.map((item) => {
             item = JSON.parse(item);
@@ -102,6 +109,9 @@ async function diarizer(req, res) {
             })
           });
           res.send(json)
+        }
+        else{
+          res.send(err)
         }
       });
     }

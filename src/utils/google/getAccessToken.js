@@ -15,6 +15,8 @@ async function handler() {
   }
 
   const refresh_token = user.googleRefreshToken;
+  const expiry_date = user.googleTokenExpiry;
+  const access_token = user.googleAccessToken;
 
   if (!refresh_token || !email) {
     console.log("Missing refresh_token or email");
@@ -27,25 +29,36 @@ async function handler() {
     process.env.GOOGLE_REDIRECT_URI
   );
 
-  oAuth2Client.setCredentials({ refresh_token });
-
+  oAuth2Client.setCredentials({ 
+    refresh_token: refresh_token,
+    forceRefreshOnFailure: true
+  });
   try {
-    const { res,token } = await oAuth2Client.getAccessToken();
-    console.log(res.data);
-    if (res.data) {
-      console.log(res.data);
-
-      await prisma.user.update({
-        where: { email },
-        data: {
-          googleAccessToken: res.data.access_token,
-          googleRefreshToken: res.data.refresh_token,
-        },
+    console.log("try");
+    oAuth2Client.on('tokens', async (tokens) => {
+      console.log("tokens");
+      if (tokens.refresh_token) {
+        // store the refresh_token in my database!
+        console.log(tokens.refresh_token);
+        const user = await prisma.user.update({
+          where: { email },
+          data: {
+            googleRefreshToken: tokens.refresh_token,
+          },
+        });
+      }
+      console.log(tokens.access_token);
+      if(tokens.access_token) {
+        const user = await prisma.user.update({
+          where: { email },
+          data: {
+            googleAccessToken: tokens.access_token,
+            googleTokenExpiry: tokens.expiry_date,
+          },
+        });
+      }
       });
-
-      console.log("Token refreshed");
-    }
-  } catch (error) {
+    } catch (error) {
     console.error("Failed to refresh access token:", error);
   }
 }

@@ -34,6 +34,7 @@ async function handler(req, res) {
         res.send({message: err})
       }
       console.log(authToken);
+      oAuth2Client.setCredentials(authToken);
       const user = await prisma.user.update({
         where: { email },
         data: { 
