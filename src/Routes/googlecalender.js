@@ -1,8 +1,14 @@
 const { google } = require("googleapis");
 const prisma = require("../utils/db/prisma");
+const handler = require("../utils/google/getAccessToken");
 
-function handler(req,res){
+async function googleCalender(req,res){
+  try{
     const { email } = req.body;
+    await handler(email);
+  }catch(err){
+    console.log(err);
+  }
 
 async function makeCalendarClient() {
     if(!email){
@@ -102,4 +108,4 @@ async function getCalendar() {
 getCalendar();
 }
 
-module.exports = handler;
+module.exports = googleCalender;
