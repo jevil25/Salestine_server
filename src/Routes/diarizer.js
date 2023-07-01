@@ -103,13 +103,13 @@ async function diarizer(req, res) {
           console.log(json);
           json.data.map((item) => {
             item = JSON.parse(item);
-            item.map((item) => {
+            item.map(async (item) => {
             let speaker = item.speaker;
             let start_time = item.start_time;
             let end_time = item.end_time;
             let text = item.text;
             //store to db
-            prisma.transcription.create({
+            const transcript = await prisma.transcript.create({
               data: {
                 speaker,
                 start_time,
@@ -119,6 +119,7 @@ async function diarizer(req, res) {
               }
             })
           });
+          console.log(transcript);
         });
         res.send(json)
         }
