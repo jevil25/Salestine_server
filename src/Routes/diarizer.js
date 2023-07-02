@@ -98,6 +98,7 @@ async function diarizer(req, res) {
                 },
                 body: data
             });
+            console.log("waiting from response from asr")
             const json = await response.json();
             //delete wav file
             fs.unlinkSync(`./${id}.mp3`);
