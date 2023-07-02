@@ -108,6 +108,8 @@ async function diarizer(req, res) {
             let start_time = item.start_time;
             let end_time = item.end_time;
             let text = item.text;
+            speaker = speaker.split("_")[1];
+            speaker = parseInt(speaker);
             //store to db
             const transcript = await prisma.transcript.create({
               data: {
