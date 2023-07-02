@@ -148,7 +148,7 @@ const job = () => {
 runTask();
 
 // Schedule the task to run every  minutes
-cron.schedule('*/20 * * * *', runTask);
+cron.schedule('*/120 * * * *', runTask);
 }
 
 module.exports = job;
