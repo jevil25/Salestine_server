@@ -3,9 +3,12 @@ const { JWT_SECRET } = process.env;
 
 async function handler(req, res) {
     if (req.method !== 'POST') {
-        return res.status(405).json({ message: 'Method not allowed' });
+        return res.status(401).json({ message: 'Invalid token',status:401 });
     }
     const { token, email } = req.body;
+    if (!token || !email) {
+        return res.status(401).json({ message: 'Invalid token',status:401 });
+    }
     try {
         const result = jwt.verify(token, JWT_SECRET);
         if (result.email !== email) {

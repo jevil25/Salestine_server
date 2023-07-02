@@ -2,6 +2,9 @@ const prisma = require("../utils/db/prisma");
 
 async function handler(req, res) {
   const meet_id = req.body.meet_id;
+  if (!meet_id) {
+    return res.status(404).json({ message: "Meeting id not found.",status: false });
+  }
   try {
     const meeting = await prisma.meeting.findUnique({
         where: {

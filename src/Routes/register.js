@@ -8,6 +8,9 @@ async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
   const { name, email, password, company_name,company_email,company_details } = req.body;
+  if (!name || !email || !password || !company_name || !company_email || !company_details) {
+    return res.status(400).json({ message: 'Missing credentials' });
+  }
  
     const existingUser = await prisma.user.findUnique({
       where: { email },

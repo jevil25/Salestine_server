@@ -5,15 +5,16 @@ const handler = require("../utils/google/getAccessToken");
 async function googleCalender(req,res){
   try{
     const { email } = req.body;
+    if(!email){
+        return res.status(404).json({ message: "Email not found.",status: false });
+    }
     await handler(email);
+    getCalendar(email);
   }catch(err){
     console.log(err);
   }
 
-async function makeCalendarClient() {
-    if(!email){
-        res.send({message: "email not found"})
-    }
+async function makeCalendarClient(email) {
     const user = await prisma.user.findUnique({
         where: { email },
     });
@@ -42,8 +43,8 @@ async function makeCalendarClient() {
 }
 
 
-async function getCalendar() {
-  const calendarClient = await makeCalendarClient();
+async function getCalendar(email) {
+  const calendarClient = await makeCalendarClient(email);
 
   const { data: calendars, status } = await calendarClient.events.list({
     calendarId: "primary",
@@ -55,7 +56,6 @@ async function getCalendar() {
 
   if (status === 200) {
     // console.log('calendars', calendars);
-    const { email } = req.body;
     const user = await prisma.user.findUnique({
         where: { email },
     });
@@ -104,8 +104,6 @@ async function getCalendar() {
   }
 
 }
-
-getCalendar();
 }
 
 module.exports = googleCalender;

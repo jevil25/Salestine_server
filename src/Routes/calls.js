@@ -2,6 +2,9 @@ const prisma = require("../utils/db/prisma");
 
 async function handler(req, res) {
     const { email } = req.body;
+    if(!email){
+        return res.status(404).json({ message: "Email not found.",status: false });
+    }
     //include only meetings with recording_drive_link
     const user = await prisma.user.findUnique({
         where: {
