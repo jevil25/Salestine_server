@@ -111,13 +111,17 @@ async function diarizer(req, res) {
             //store to db
             const transcript = await prisma.transcript.create({
               data: {
-                speaker,
-                start_time,
-                end_time,
-                text,
-                meetingId: id
+                speaker: speaker,
+                startTime: start_time,
+                endTime: end_time,
+                text: text,
+                meeting: {
+                  connect: {
+                    id: id
+                  }
+                }
               }
-            })
+            });
             console.log(transcript);
           });
         });
