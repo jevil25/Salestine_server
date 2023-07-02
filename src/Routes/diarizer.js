@@ -69,10 +69,9 @@ async function diarizer(req, res) {
     console.log(meets);
     meets.map(async (meet) => {
       const { id, recordingLink,numberOfSpeakers } = meet;
-      console.log(numberOfSpeakers);
       //get id from recordingLink
       const rid = recordingLink.split('d/')[1].split('/')[0];
-      // const rid ="1QihwDMxSXfmY8HFU42JmlX_srNmtr_W3"
+      // const rid ="1QihwDMxSXfmY8HFU42JmlX_srNmtr_W3"k
       console.log(rid);
       convert(`https://www.googleapis.com/drive/v3/files/${rid}?alt=media`, `./${id}.mp3`,rid, async function(err){
         if(!err) {
