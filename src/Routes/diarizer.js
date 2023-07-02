@@ -105,8 +105,8 @@ async function diarizer(req, res) {
             item = JSON.parse(item);
             item.map(async (item) => {
             let speaker = item.speaker;
-            let start_time = item.start_time;
-            let end_time = item.end_time;
+            let start_time = item.start_time.toString();
+            let end_time = item.end_time.toString();
             let text = item.text;
             speaker = speaker.split("_")[1];
             speaker = parseInt(speaker);
