@@ -1,32 +1,22 @@
-const speech = require('@google-cloud/speech');
-
-const client = new speech.SpeechClient();
+const prisma = require("../utils/db/prisma");
 
 async function transcribe(req, res) {
-  const { audioFile } = req.body;
-
-  const config = {
-    encoding: 'LINEAR16',
-    sampleRateHertz: 16000,
-    languageCode: 'en-US',
-  };
-
-  const audio = {
-    content: audioFile.buffer.toString('base64'),
-  };
-
-  const request = {
-    audio: audio,
-    config: config,
-  };
-
-  const [response] = await client.recognize(request);
-
-  const transcription = response.results
-    .map(result => result.alternatives[0].transcript)
-    .join('\n');
-
-  res.status(200).json({ transcription });
+  const { meet_id } = req.body;
+  if(!meet_id){
+    return res.status(400).json({ error: "Please provide meet_id" });
+  }
+  const meet = await prisma.transcript.findMany({
+    where: {
+      meetingId: meet_id,
+    },
+  });
+  if(!meet){
+    return res.status(400).json({ error: "No such meeting found" });
+  }
+  res.status(200).json({
+    message: "success",
+    data: meet,
+  });
 }
 
 module.exports = transcribe;

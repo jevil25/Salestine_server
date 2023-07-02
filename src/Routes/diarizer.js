@@ -119,11 +119,7 @@ async function diarizer(req, res) {
                   startTime: start_time,
                   endTime: end_time,
                   text: text,
-                  meeting: {
-                    connect: {
-                      id: id
-                    }
-                  }
+                  meetingId:id,
                 }
               });
               console.log(transcript);
