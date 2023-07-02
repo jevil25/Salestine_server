@@ -69,6 +69,7 @@ async function diarizer(req, res) {
     console.log(meets);
     meets.map(async (meet) => {
       const { id, recordingLink,numberOfSpeakers } = meet;
+      console.log(numberOfSpeakers);
       //get id from recordingLink
       const rid = recordingLink.split('d/')[1].split('/')[0];
       // const rid ="1QihwDMxSXfmY8HFU42JmlX_srNmtr_W3"
