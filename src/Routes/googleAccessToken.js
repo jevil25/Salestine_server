@@ -37,7 +37,10 @@ async function handler(req, res) {
         });
         return res.send(user)
       });
-      return res.send({message: "Token not refreshed"})
+      const user1 = await prisma.user.findUnique({
+        where: { email }
+    });
+    return res.send(user1)
 }
 
 module.exports = handler;
