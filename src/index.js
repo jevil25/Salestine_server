@@ -26,6 +26,7 @@ app.use("/getonerecord", require("./Routes/getonerecocord"));
 app.use("/calender", require("./Routes/googlecalender"));
 app.use("/diarizer", require("./Routes/diarizer"));
 app.use("/transcribe", require("./Routes/transcribe"));
+app.use("/changepassword",require('./Routes/changepassword'))
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
