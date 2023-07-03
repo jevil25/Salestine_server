@@ -112,7 +112,7 @@ async function diarizer(req, res) {
             let config = {
               method: 'post',
               maxBodyLength: Infinity,
-              url: 'http://18.190.131.83:5555/diarizer/',
+              url: process.env.ASR_URL,
               headers: { 
                 ...data.getHeaders()
               },

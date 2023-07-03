@@ -74,7 +74,7 @@ const runTask = async () => {
   //starts here
   try{
     //gets meets without transcriptionCompleted field doesnt exsist
-    const meets = await prisma.meeting.findMany({
+    let meets = await prisma.meeting.findMany({
       where: {
         NOT: {
           recordingLink: null,
@@ -82,6 +82,8 @@ const runTask = async () => {
         },
       }
     });
+    //filter meets without recordingLink
+    meets = meets.filter(meet => meet.recordingLink !== "");
     console.log(meets);
     meets.map(async (meet) => {
       const { id, recordingLink,numberOfSpeakers } = meet;
@@ -90,6 +92,7 @@ const runTask = async () => {
       // const rid = recordingLink.split('d/')[1].split('/')[0];
       // // const rid ="1QihwDMxSXfmY8HFU42JmlX_srNmtr_W3"k
       // console.log(rid);
+      console.log(recordingLink)
       const folderId = recordingLink.split('folders/')[1].split('/')[0]; // Extract the folder ID from recordingLink
       console.log(folderId);
       const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents`; // Construct the URL to fetch the files inside the folder

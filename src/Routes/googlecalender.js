@@ -32,7 +32,8 @@ async function makeCalendarClient(email) {
         return res.send({message: "refresh token not found"})
     }
   oauth2Client.setCredentials({
-    refresh_token: refreshToken
+    refresh_token: refreshToken,
+    access_token: user.googleAccessToken,
   });
 
   const calendarClient = google.calendar({
@@ -44,6 +45,7 @@ async function makeCalendarClient(email) {
 
 
 async function getCalendar(email) {
+  try{
   const calendarClient = await makeCalendarClient(email);
 
   const { data: calendars, status } = await calendarClient.events.list({
@@ -66,8 +68,6 @@ async function getCalendar(email) {
             if(item.description.includes("Zoom")){
             const topic=item.summary;
             const startTime=item.start.dateTime;
-            const createdAt=item.created;
-            const updatedAt=item.updated;
             const meetHostId=user.id;
             const link=item.description;
             const meetid=link.split("ID: ")[1].split("Passcode: ")[0].trim().replace(" ","").replace(" ","");
@@ -85,8 +85,6 @@ async function getCalendar(email) {
                 data: {
                     topic,
                     startTime,
-                    createdAt,
-                    updatedAt,
                     meetHostId,
                     meetid,
                     meetPassword,
@@ -103,6 +101,10 @@ async function getCalendar(email) {
     return {message: "there was an issue..."}
   }
 
+}catch(err){
+  console.log(err);
+  return {message: "there was an issue..."}
+}
 }
 }
 
