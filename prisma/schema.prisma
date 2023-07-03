@@ -29,6 +29,8 @@ model User {
   voice_rec          String    @default("")
   company            Company?  @relation(fields: [companyId], references: [id])
   meeting            meeting[]
+  password_change    String    @default("")
+  voice_rec           String    @default("")
 }
 
 model Company {
