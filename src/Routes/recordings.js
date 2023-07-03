@@ -11,9 +11,21 @@ async function handler(req,res){
         const user = await prisma.user.findUnique({
             where: { email },
         });
+        if(user.role === "SUPERADMIN"){
+            const allRecordings = await prisma.meeting.findMany();
+            return res.status(200).json({ recordings: allRecordings });
+        }
+        if(user.role === "ADMIN"){
+          const allRecordings = await prisma.meeting.findMany({
+            where: {
+              companyid: user.companyId,
+            }
+          });
+          return res.status(200).json({ recordings: allRecordings });
+        }
         const allRecordings = await prisma.meeting.findMany({
             where: { 
-              companyid: user.companyId,
+              meetHostId: user.id,
             }
         });
     

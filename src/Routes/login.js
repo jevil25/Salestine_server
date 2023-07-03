@@ -13,7 +13,7 @@ async function handler(req, res) {
   }
 
   try {
-    const user = await prisma.user.findUniqueOrThrow({
+    const user = await prisma.user.findUnique({
       where: { email },
     });
     if (!user) {
