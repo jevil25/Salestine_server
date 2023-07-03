@@ -57,13 +57,10 @@ async function convert(input, output, rid, callback) {
 
 async function diarizer(req, res) {
   try{
+    //gets meets without transcriptionCompleted field doesnt exsist
     const meets = await prisma.meeting.findMany({
       where: {
-        transcriptionCompleted: false,
-        transcriptionRequested: false,
-        recordingLink: {
-          not: ""
-        } 
+        transcriptionCompleted: null,
       }
     });
     console.log(meets);

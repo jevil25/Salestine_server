@@ -7,6 +7,7 @@ const prisma = require("../db/prisma");
 const handler = require('../google/getAccessToken');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
+const { isNull } = require('util');
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 const runTask = async () => {
@@ -59,20 +60,19 @@ const runTask = async () => {
   }
   //starts here
 try{
-    const meets = await prisma.meeting.findMany({
+  const meets = await prisma.meeting.findMany({
     where: {
-        transcriptionCompleted: false,
-        transcriptionRequested: false,
-        recordingLink: {
-        not: ""
-        } 
+      NOT: {
+        recordingLink: null,
+        transcriptionComplete: true,
+      },
     }
-    });
+  });
     console.log(meets);
     meets.map(async (meet) => {
     const { id, recordingLink,numberOfSpeakers } = meet;
     //get id from recordingLink
-    const rid = recordingLink.split('d/')[1].split('/')[0];
+    const rid = recordingLink.split('folders/')[1].split('/')[0];
     // const rid ="1QihwDMxSXfmY8HFU42JmlX_srNmtr_W3"k
     console.log(rid);
     convert(`https://www.googleapis.com/drive/v3/files/${rid}?alt=media`, `./${id}.mp3`,rid, async function(err){
@@ -131,10 +131,10 @@ try{
             console.log(transcript);
             });
         });
-        res.send(json)
+        console.log("done");
         }
         else{
-            res.send(err)
+            console.log(err);
         }
         });
     })

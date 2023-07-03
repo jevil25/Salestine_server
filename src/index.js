@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const port = process.env.PORT || 4000;
 const prisma = require("./utils/db/prisma");
 const job = require("./utils/jobs/index");
+const ping = require("./utils/jobs/serverOnline");
 
 app.use(cors());
 
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+ping();
 //run the job
 job();
 

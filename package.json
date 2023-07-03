@@ -24,6 +24,7 @@
     "form-data": "^4.0.0",
     "fs": "^0.0.1-security",
     "googleapis": "^105.0.0",
+    "https": "^1.0.0",
     "jsonwebtoken": "^9.0.0",
     "jsrsasign": "^10.8.6",
     "mongodb": "^5.6.0",
