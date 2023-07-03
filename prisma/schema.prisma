@@ -25,6 +25,8 @@ model User {
   companyId          String?
   activeDeals        Int       @default(0)
   closedDeals        Int       @default(0)
+  password_change    String    @default("")
+  voice_rec          String    @default("")
   company            Company?  @relation(fields: [companyId], references: [id])
   meeting            meeting[]
 }
@@ -55,6 +57,7 @@ model meeting {
   user                  User         @relation(fields: [meetHostId], references: [id])
   meetPassword          String
   recordingLink         String?      @default("")
+  videoLink             String?      @default("")
   transcriptionComplete Boolean?     @default(false)
   comments              comment[]
   transcript            transcript[]

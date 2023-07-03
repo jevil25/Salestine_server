@@ -9,9 +9,8 @@ const ffmpeg = require('fluent-ffmpeg');
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 
-async function convert(input, output, rid, callback) {
+async function convert(input, output, rid,accessToken, callback) {
   try {
-    const accessToken = await(handler(process.env.DRIVE_EMAIL));;
     // console.log(accessToken);
     console.log("Fetching video from drive");
     axios({
@@ -26,24 +25,38 @@ async function convert(input, output, rid, callback) {
         console.log(response.status);
         console.log(response.statusText);
         const fileData = Buffer.from(response.data);
-        fs.writeFileSync(`${rid}.mp4`, fileData)
-        // Pipe the downloaded video to FFmpeg for conversion
-        //convert to audio wav file
+        fs.writeFileSync(`${rid}.m4a`, fileData)
         console.log("converting to audio")
-        ffmpeg(`${rid}.mp4`).noVideo()
-          .toFormat('mp3')
-          .on('error', (err) => {
-            console.log('An error occurred: ' + err.message);
-          }
-          )
-          .on('end', () => {
-            console.log('Processing finished !');
-            //delete mp4 file
-            fs.unlinkSync(`${rid}.mp4`);
-            callback(null);
-          }
-          )
-          .saveToFile(output);
+        // Pipe the downloaded video to FFmpeg for conversion
+        ffmpeg(`${rid}.m4a`)
+        .output(output)
+        .audioCodec('libmp3lame')
+        .on('end', () => {
+          console.log('Conversion complete!');
+          fs.unlinkSync(`${rid}.m4a`);
+          callback(null);
+        })
+        .on('error', (err) => {
+          console.error('An error occurred:', err.message);
+          callback(err)
+        })
+        .run();
+        //convert to audio wav file
+        // console.log("converting to audio")
+        // ffmpeg(`${rid}.mp4`).noVideo()
+        //   .toFormat('mp3')
+        //   .on('error', (err) => {
+        //     console.log('An error occurred: ' + err.message);
+        //   }
+        //   )
+        //   .on('end', () => {
+        //     console.log('Processing finished !');
+        //     //delete mp4 file
+        //     fs.unlinkSync(`${rid}.mp4`);
+        //     callback(null);
+        //   }
+        //   )
+        //   .saveToFile(output);
       })
       .catch((err) => {
         console.error('Error during download:',err.response.status,err.response.statusText,err.response.headers);
@@ -60,22 +73,41 @@ async function diarizer(req, res) {
     //gets meets without transcriptionCompleted field doesnt exsist
     const meets = await prisma.meeting.findMany({
       where: {
-        transcriptionCompleted: null,
+        NOT: {
+          recordingLink: null,
+          transcriptionComplete: true,
+        },
       }
     });
     console.log(meets);
     meets.map(async (meet) => {
       const { id, recordingLink,numberOfSpeakers } = meet;
+      const accessToken = await(handler(process.env.DRIVE_EMAIL));
       //get id from recordingLink
-      const rid = recordingLink.split('d/')[1].split('/')[0];
-      // const rid ="1QihwDMxSXfmY8HFU42JmlX_srNmtr_W3"k
-      console.log(rid);
-      convert(`https://www.googleapis.com/drive/v3/files/${rid}?alt=media`, `./${id}.mp3`,rid, async function(err){
+      // const rid = recordingLink.split('d/')[1].split('/')[0];
+      // // const rid ="1QihwDMxSXfmY8HFU42JmlX_srNmtr_W3"k
+      // console.log(rid);
+      const folderId = recordingLink.split('folders/')[1].split('/')[0]; // Extract the folder ID from recordingLink
+      console.log(folderId);
+      const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents`; // Construct the URL to fetch the files inside the folder
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          }
+          })
+      .then(response => response.json())
+      .then(data => {
+        //check if file is audio file name starts with audio
+        const audioFile = data.files.filter(file => file.name.startsWith('audio'))[0].id;
+        const rid = audioFile; // Get the ID of the audio file
+        // console.log(audioFileId);
+      convert(`https://www.googleapis.com/drive/v3/files/${rid}?alt=media`, `./${id}.mp3`,rid,accessToken, async function(err){
         if(!err) {
             console.log('conversion complete');
             let data = new FormData();
             data.append('audio_data', fs.createReadStream(`./${id}.mp3`));
-            data.append('num_speaker', numberOfSpeakers);
+            data.append('num_speaker', 1);
             
             let config = {
               method: 'post',
@@ -98,7 +130,7 @@ async function diarizer(req, res) {
             console.log("waiting from response from asr")
             const json = await response.json();
             //delete wav file
-            fs.unlinkSync(`./${id}.mp3`);
+            fs.unlinkSync(`./${rid}.mp3`);
             console.log(json);
             json.data.map((item) => {
               item = JSON.parse(item);
@@ -128,10 +160,12 @@ async function diarizer(req, res) {
             res.send(err)
           }
         });
+      })
       }
     )
   }catch(err){
     console.log(err);
+    res.send(err);
   }
 }
 
