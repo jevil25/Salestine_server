@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
 
 ping();
 //run the job
-// job();
+job();
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
