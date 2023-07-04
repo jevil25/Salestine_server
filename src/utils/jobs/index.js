@@ -105,6 +105,7 @@ const runTask = async () => {
       .then(response => response.json())
       .then(async data => {
         //check if file is audio file name starts with audio
+        console.log(data);
         const audioFile = data.files.filter(file => file.name.startsWith('audio'))[0].id;
         const videoFile = data.files.filter(file => file.name.startsWith('video'))[0].id;
         console.log("video",videoFile);

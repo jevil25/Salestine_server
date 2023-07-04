@@ -27,6 +27,7 @@ app.use("/calender", require("./Routes/googlecalender"));
 app.use("/diarizer", require("./Routes/diarizer"));
 app.use("/transcribe", require("./Routes/transcribe"));
 app.use("/changepassword",require('./Routes/changepassword'))
+app.use("/getVideoLink",require('./Routes/getVideoLink'))
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -34,7 +35,7 @@ app.get("/", (req, res) => {
 
 ping();
 //run the job
-job();
+// job();
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
