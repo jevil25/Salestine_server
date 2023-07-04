@@ -31,14 +31,26 @@ async function handler(req, res) {
       data: { token },
     });
 
-    if (user.voice_rec === "" && user.password_change === "") {
-      return res.status(400).json({ message: "Voice rec and password needed",user });
+    if (user.voice_rec === "" && user.password_change === "" && user.googleCalendar === "") {
+      return res.status(400).json({ message: "Voice rec ,password change and google calendar integration needed",user });
+    }
+    else if(user.googleCalendar === "" && user.password_change === ""){
+      return res.status(400).json({ message: "Google calendar and password change needed",user });
+    }
+    else if(user.googleCalendar === "" && user.voice_rec === ""){
+      return res.status(400).json({ message: "Google calendar and voice registration needed",user });
+    }
+    else if(user.password_change === "" && user.voice_rec===""){
+      return res.status(400).json({ message: "Password change and voice registration needed",user });
     }
     else if( user.password_change === ""){
       return res.status(400).json({ message: "Password change needed",user });
     }
     else if(user.voice_rec === ""){
       return res.status(400).json({ message: "Voice rec needed",user });
+    }
+    else if(user.googleCalendar === ""){
+      return res.status(400).json({ message: "Google calendar needed",user });
     }
     else{
     console.log("user found");

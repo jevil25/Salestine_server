@@ -27,7 +27,8 @@ app.use("/calender", require("./Routes/googlecalender"));
 app.use("/diarizer", require("./Routes/diarizer"));
 app.use("/transcribe", require("./Routes/transcribe"));
 app.use("/changepassword",require('./Routes/changepassword'))
-app.use("/getVideoLink",require('./Routes/getVideoLink'))
+app.use("/getVideoLink",require('./Routes/getVideoLink'));
+app.use("/voicerec",require("./Routes/voicerec"))
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
