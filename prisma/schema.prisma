@@ -27,6 +27,7 @@ model User {
   closedDeals        Int       @default(0)
   password_change    String    @default("")
   voice_rec          String    @default("")
+  googleCalendar     String    @default("")
   company            Company?  @relation(fields: [companyId], references: [id])
   meeting            meeting[]
 }
