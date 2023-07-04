@@ -32,10 +32,10 @@ async function handler(req, res) {
         password_change:  password_status ,
       },
     });
-    res.status(200).json({ message: "Password change successful", user });
+    return res.status(200).json({ message: "Password change successful", user });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 }
 

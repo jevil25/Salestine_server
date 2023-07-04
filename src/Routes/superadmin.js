@@ -145,6 +145,7 @@ router.put("/activecompany", async (req, res) => {
 });
 
 router.post("/updateOwner", async (req, res) => {
+    console.log(req.body);
     const { company_email, user_email, name,password } = req.body;
     if (!company_email || !user_email || !name) {
         res.status(404).json({ message: "Company email or user email or name not found." });
@@ -163,6 +164,7 @@ router.post("/updateOwner", async (req, res) => {
         where: { email:user_email },
     });
     if (!user) {
+        console.log("user not found");
         const companyNew = await prisma.company.findUnique({
             where: { email:company_email },
         });
@@ -170,22 +172,25 @@ router.post("/updateOwner", async (req, res) => {
         const owner = await prisma.user.findFirst({
             where: { companyId:companyNew.id, role:"OWNER" },
         });
-        if (!owner) {
-            res.status(404).json({ message: "Owner not found." });
-            return;
+        if (owner) {
+            await prisma.user.update({
+                where: { id:owner.id },
+                data: {
+                    role:"USER"
+                }
+            });
         };
-        await prisma.user.delete({
-            where: { id:owner.id },
-        });
         //create user
         const user = await prisma.user.create({
             data: {
                 name,
                 email:user_email,
                 role:"OWNER",
-                password
+                password,
+                companyId:companyNew.id
             }
         });
+        console.log(user);
         if (!user) {
             res.status(404).json({ message: "User not found." });
             return;

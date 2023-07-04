@@ -8,7 +8,7 @@ async function handler(req,res){
       }
     let {email} = req.body;
     if(!email){
-        res.status(400).json({message:"Email not received"})
+        return res.status(400).json({message:"Email not received"})
     }
     try{
         const user = await prisma.user.findUniqueOrThrow({
@@ -24,10 +24,11 @@ async function handler(req,res){
               voice_rec:"stored"
             },
           });
-          res.status(200).json({ message: "Voice registration completed", user });
+          return res.status(200).json({ message: "Voice registration completed", user });
     }
     catch(err){
         console.log("Internal Server Error: " + err)
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
 module.exports = handler;
