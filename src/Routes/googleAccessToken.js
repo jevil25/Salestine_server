@@ -1,8 +1,9 @@
 const { google } = require("googleapis");
 const prisma = require("../utils/db/prisma");
+const handler = require("../utils/google/getAccessToken")
 
 
-async function handler(req, res) {
+async function googleAccessToken(req, res) {
     console.log(req.body);
     const { email } = req.body;
     if(!email){
@@ -37,10 +38,11 @@ async function handler(req, res) {
         });
         return res.send(user)
       });
+      await handler(email);
       const user1 = await prisma.user.findUnique({
         where: { email }
     });
     return res.send(user1)
 }
 
-module.exports = handler;
+module.exports = googleAccessToken;
