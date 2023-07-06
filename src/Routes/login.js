@@ -31,6 +31,10 @@ async function handler(req, res) {
       data: { token },
     });
 
+    if(user.role === "ADMIN"){
+      return res.status(400).json({ message: "Voice rec needed",user });
+    }
+
     if (user.voice_rec === "" && user.password_change === "" && user.googleCalendar === "") {
       return res.status(400).json({ message: "Voice rec ,password change and google calendar integration needed",user });
     }
