@@ -32,6 +32,7 @@ async function handler(req, res) {
         password,
         token,
         role: 'ADMIN',
+        password_change: 'done',
       },
     });
     // console.log(user)

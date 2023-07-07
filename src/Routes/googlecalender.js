@@ -91,6 +91,14 @@ async function getCalendar(email) {
                     companyid: user.companyId,
                 },
             });
+            user = await prisma.user.update({
+                where: {
+                    id: user.id,
+                },
+                data: {
+                  googleCalendar:"done"
+                }
+              });
             console.log(meet);
         } 
             }
