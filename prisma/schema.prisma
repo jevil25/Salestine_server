@@ -50,12 +50,12 @@ model Company {
 model meeting {
   id                    String       @id @default(cuid()) @map("_id")
   topic                 String       @default("")
-  companyid             String
-  company               Company      @relation(fields: [companyid], references: [id])
+  companyid             String?
+  company               Company?     @relation(fields: [companyid], references: [id])
   startTime             String
   meetid                String       @unique
-  meetHostId            String
-  user                  User         @relation(fields: [meetHostId], references: [id])
+  meetHostId            String?
+  user                  User?        @relation(fields: [meetHostId], references: [id])
   meetPassword          String
   recordingLink         String?      @default("")
   videoLink             String?      @default("")
@@ -69,8 +69,8 @@ model comment {
   author    String
   text      String
   timestamp DateTime @default(now())
-  meetingId String
-  meeting   meeting  @relation(fields: [meetingId], references: [id])
+  meetingId String?
+  meeting   meeting? @relation(fields: [meetingId], references: [id])
 }
 
 model transcript {
@@ -80,8 +80,8 @@ model transcript {
   startTime String
   endTime   String
   speaker   Int
-  meetingId String
-  meeting   meeting  @relation(fields: [meetingId], references: [id])
+  meetingId String?
+  meeting   meeting? @relation(fields: [meetingId], references: [id])
 }
 
 enum Role {
