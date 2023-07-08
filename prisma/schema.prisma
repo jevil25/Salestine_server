@@ -48,20 +48,31 @@ model Company {
 }
 
 model meeting {
-  id                    String       @id @default(cuid()) @map("_id")
-  topic                 String       @default("")
-  companyid             String?
-  company               Company?     @relation(fields: [companyid], references: [id])
-  startTime             String
-  meetid                String       @unique
-  meetHostId            String?
-  user                  User?        @relation(fields: [meetHostId], references: [id])
-  meetPassword          String
-  recordingLink         String?      @default("")
-  videoLink             String?      @default("")
-  transcriptionComplete Boolean?     @default(false)
-  comments              comment[]
-  transcript            transcript[]
+  id            String       @id @default(cuid()) @map("_id")
+  topic         String       @default("")
+  companyid     String
+  startTime     String
+  meetid        String       @unique
+  meetHostId    String
+  meetPassword  String
+  recordingLink String?      @default("")
+  comments      comment[]
+  transcript    transcript[]
+  userId        String?
+  companyId     String?
+  User          User?        @relation(fields: [userId], references: [id])
+  Company       Company?     @relation(fields: [companyId], references: [id])
+  file          file[]
+}
+
+model file {
+  id                    String   @id @default(cuid()) @map("_id")
+  audioId               String
+  videoId               String
+  timestamp             DateTime @default(now())
+  meetingId             String   @unique
+  transcriptionComplete Boolean? @default(false)
+  meeting               meeting  @relation(fields: [meetingId], references: [meetid])
 }
 
 model comment {
@@ -69,8 +80,8 @@ model comment {
   author    String
   text      String
   timestamp DateTime @default(now())
-  meetingId String?
-  meeting   meeting? @relation(fields: [meetingId], references: [id])
+  meetingId String
+  meeting   meeting  @relation(fields: [meetingId], references: [meetid])
 }
 
 model transcript {
@@ -80,8 +91,8 @@ model transcript {
   startTime String
   endTime   String
   speaker   Int
-  meetingId String?
-  meeting   meeting? @relation(fields: [meetingId], references: [id])
+  meetingId String
+  meeting   meeting  @relation(fields: [meetingId], references: [meetid])
 }
 
 enum Role {

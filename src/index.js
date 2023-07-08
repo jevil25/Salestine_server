@@ -6,6 +6,7 @@ const port = process.env.PORT || 4000;
 const prisma = require("./utils/db/prisma");
 const job = require("./utils/jobs/index");
 const ping = require("./utils/jobs/serverOnline");
+const file = require("./utils/jobs/getFiles");
 
 app.use(cors());
 
@@ -36,6 +37,7 @@ app.get("/", (req, res) => {
 ping();
 //run the job
 job();
+file();
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);

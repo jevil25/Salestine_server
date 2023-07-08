@@ -41,6 +41,7 @@ async function handler(req, res) {
             googleAccessToken: authToken.access_token,
             googleRefreshToken: authToken.refresh_token,
             googleTokenExpiry: authToken.expiry_date,
+            googleCalendar:"done"
          },
         });
       res.send(authToken)

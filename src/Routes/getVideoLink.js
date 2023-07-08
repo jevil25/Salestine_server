@@ -4,13 +4,6 @@ const axios = require("axios");
 function getVideo(accessToken,id,res) {
     try{
         console.log("Fetching video from drive");
-        // Calculate expiration time (two hours from the current time)
-        // const expirationDate = new Date();
-        // expirationDate.setHours(expirationDate.getHours() + 2);
-
-        // // Format expiration time string manually
-        // const expirationTime = Date.parse(expirationDate).toString();
-        // console.log(expirationTime);
         axios({
         method: 'POST',
         url: `https://www.googleapis.com/drive/v3/files/${id}/permissions`,

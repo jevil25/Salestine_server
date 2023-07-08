@@ -8,7 +8,7 @@ async function handler(req, res) {
   }
   const meeting = await prism.meeting.findUnique({
     where: {
-        id: meet_id,
+        meetid: meet_id,
         },
     include: {
         comments: true,
@@ -24,21 +24,12 @@ async function handler(req, res) {
       let text = req.body.text;
       let timestamp = Date.now();
       try {
-        const updatedMeeting = await prism.meeting.update({
-            where: {
-                id: meet_id,
-            },
-            data: {
-                comments: {
-                    create: {
-                        author: author,
-                        text: text,
-                    },
-                },
-            },
-            include: {
-                comments: true,
-            },
+        const updatedMeeting = await prism.comment.create({
+          data: {
+            meetingId: meet_id,
+            text: text,
+            author: author,
+          }
         });
 
         return res

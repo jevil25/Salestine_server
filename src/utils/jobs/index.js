@@ -49,22 +49,6 @@ const runTask = async () => {
             callback(err)
           })
           .run();
-          //convert to audio wav file
-          // console.log("converting to audio")
-          // ffmpeg(`${rid}.mp4`).noVideo()
-          //   .toFormat('mp3')
-          //   .on('error', (err) => {
-          //     console.log('An error occurred: ' + err.message);
-          //   }
-          //   )
-          //   .on('end', () => {
-          //     console.log('Processing finished !');
-          //     //delete mp4 file
-          //     fs.unlinkSync(`${rid}.mp4`);
-          //     callback(null);
-          //   }
-          //   )
-          //   .saveToFile(output);
         })
         .catch((err) => {
           console.error('Error during download:',err.response.status,err.response.statusText,err.response.headers);
@@ -77,57 +61,18 @@ const runTask = async () => {
   }
   //starts here
   try{
-    //gets meets without transcriptionCompleted field doesnt exsist
-    let meets = await prisma.meeting.findMany({
+    //gets meets where file array is empty
+    let files = await prisma.file.findMany({
       where: {
-        NOT: {
-          recordingLink: null,
-          transcriptionComplete: true,
-        },
+        transcriptionComplete: false
       }
     });
-    //filter meets without recordingLink
-    meets = meets.filter(meet => meet.recordingLink !== "");
-    console.log(meets);
-    meets.map(async (meet) => {
-      const update = async () => {
-        const { id, recordingLink,numberOfSpeakers } = meet;
+    console.log(files);
+    files.map(async (file) => {
+      const { id, audioId } = file;
+      const rid = audioId;
       const accessToken = await(handler(process.env.DRIVE_EMAIL));
-      const folderId = recordingLink.split('folders/')[1].split('/')[0]; // Extract the folder ID from recordingLink
-      console.log(folderId);
-      const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents`; // Construct the URL to fetch the files inside the folder
-      fetch(url, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          }
-          })
-      .then(response => response.json())
-      .then(async data => {
-        if(data.files){
-        const audioFile = data.files.filter(file => file.name.startsWith('audio'))[0].id;
-        const videoFile = data.files.filter(file => file.name.startsWith('video'))[0].id;
-        console.log("video",videoFile);
-        //store in db
-        console.log(id);
-        if(videoFile !== undefined || videoFile !== null || videoFile !== "" ){
-          const existingMeeting = await prisma.meeting.findUnique({
-            where: { id: meet.id },
-          });
-          console.log("meeting",existingMeeting);
-          if (existingMeeting){
-            const updatedMeeting = await prisma.meeting.update({
-              where: { id: meet.id },
-              data: {
-                videoLink: videoFile,
-                transcriptionComplete: false,
-              },
-            });
-            console.log(meets);
-          }
-        }
-        const rid = audioFile; // Get the ID of the audio file
-        // console.log(audioFileId);
+      // console.log(accessToken,id,audioId);
       convert(`https://www.googleapis.com/drive/v3/files/${rid}?alt=media`, `./${id}.mp3`,rid,accessToken, async function(err){
         if(!err) {
             console.log('conversion complete');
@@ -194,12 +139,7 @@ const runTask = async () => {
             console.log(err);
           }
         });
-      }
       });
-      }
-      const value = await update();
-      }
-    )
   }catch(err){
     console.log(err);
   }
