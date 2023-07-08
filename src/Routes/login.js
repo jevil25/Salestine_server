@@ -36,7 +36,7 @@ async function handler(req, res) {
     const company = await prisma.company.findUnique({
       where: { id: user.companyId },
     });
-    if(company.status === "INACTIVE"){
+    if(!company.active){
       return res.status(400).json({ message: "Company is inactive" });
     }
     if (user.voice_rec === "" && user.password_change === "" && user.googleCalendar === "") {
