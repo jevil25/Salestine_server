@@ -30,11 +30,16 @@ async function handler(req, res) {
       where: { email },
       data: { token },
     });
-
     if(user.role === "SUPERADMIN"){
       return res.status(200).json({ message: "Login successful", user });
     }
-    else if (user.voice_rec === "" && user.password_change === "" && user.googleCalendar === "") {
+    const company = await prisma.company.findUnique({
+      where: { id: user.companyId },
+    });
+    if(company.status === "INACTIVE"){
+      return res.status(400).json({ message: "Company is inactive" });
+    }
+    if (user.voice_rec === "" && user.password_change === "" && user.googleCalendar === "") {
       return res.status(400).json({ message: "Voice rec ,password change and google calendar integration needed",user });
     }
     else if(user.googleCalendar === "" && user.password_change === ""){
