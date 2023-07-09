@@ -73,11 +73,11 @@ const runTask = async () => {
       const rid = audioId;
       const accessToken = await(handler(process.env.DRIVE_EMAIL));
       // console.log(accessToken,id,audioId);
-      convert(`https://www.googleapis.com/drive/v3/files/${rid}?alt=media`, `./${id}.mp3`,rid,accessToken, async function(err){
+      convert(`https://www.googleapis.com/drive/v3/files/${rid}?alt=media`, `./${id}.wav`,rid,accessToken, async function(err){
         if(!err) {
             console.log('conversion complete');
             let data = new FormData();
-            data.append('audio_data', fs.createReadStream(`./${id}.mp3`));
+            data.append('audio_data', fs.createReadStream(`./${id}.wav`));
             data.append('num_speaker', 1);
             
             let config = {
@@ -101,13 +101,13 @@ const runTask = async () => {
               });
               console.log(response);
               if (!response.ok) {
-                fs.unlinkSync(`./${id}.mp3`);
+                fs.unlinkSync(`./${id}.wav`);
                 throw new Error('Failed to upload the converted file.');
               }
               console.log("waiting from response from asr")
               const json = await response.json();
               //delete wav file
-              fs.unlinkSync(`./${rid}.mp3`);
+              fs.unlinkSync(`./${id}.wav`);
               console.log(json);
               json.data.map((item) => {
                 item = JSON.parse(item);
