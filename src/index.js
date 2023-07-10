@@ -36,8 +36,10 @@ app.get("/", (req, res) => {
 
 ping();
 //run the job
-job();
-file();
+if(process.env.ASR_SERVER === "true"){
+  job();
+  file();
+}
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
