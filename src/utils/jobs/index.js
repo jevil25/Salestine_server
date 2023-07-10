@@ -125,9 +125,16 @@ const processFile = async (file) => {
             meetingId: meetingId,
           },
         });
-
-        return console.log(transcript);
       });
+      const file = await prisma.file.update({
+        where: {
+          meetingId: meetingId,
+        },
+        data: {
+          transcriptionComplete: true,
+        },
+      });
+      console.log(file);
     });
   } catch (err) {
     console.log(err);
