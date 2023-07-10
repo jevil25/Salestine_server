@@ -58,10 +58,8 @@ model meeting {
   recordingLink String?      @default("")
   comments      comment[]
   transcript    transcript[]
-  userId        String?
-  companyId     String?
-  User          User?        @relation(fields: [userId], references: [id])
-  Company       Company?     @relation(fields: [companyId], references: [id])
+  User          User?        @relation(fields: [meetHostId], references: [id])
+  Company       Company?     @relation(fields: [companyid], references: [id])
   file          file[]
 }
 

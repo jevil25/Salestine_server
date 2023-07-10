@@ -1,6 +1,7 @@
 const prisma = require("../db/prisma");
 const fetch = require('node-fetch');
 const cron = require('node-cron');
+const handler = require('../google/getAccessToken');
 
 const getFiles = async () => {
     try{
@@ -18,7 +19,8 @@ const getFiles = async () => {
           meets.map(async (meet) => {
             const update = async () => {
             const { id, recordingLink,numberOfSpeakers,meetid } = meet;
-            const accessToken = await(handler(process.env.DRIVE_EMAIL));
+            const accessToken = await handler(process.env.DRIVE_EMAIL);
+            console.log(accessToken);
             const folderId = recordingLink.split('folders/')[1].split('/')[0]; // Extract the folder ID from recordingLink
             console.log(folderId);
             const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents`; // Construct the URL to fetch the files inside the folder
@@ -30,6 +32,7 @@ const getFiles = async () => {
                 })
             .then(response => response.json())
             .then(async data => {
+              console.log(data);
               if(data.files){
               const audioFile = data.files.filter(file => file.name.startsWith('audio'))[0].id;
               const videoFile = data.files.filter(file => file.name.startsWith('video'))[0].id;
@@ -51,6 +54,7 @@ const getFiles = async () => {
             }
             })
         }
+        update();
     })
     }catch(err){
         console.log(err);

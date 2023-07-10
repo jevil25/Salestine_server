@@ -10,147 +10,158 @@ const ffmpeg = require('fluent-ffmpeg');
 const { isNull } = require('util');
 ffmpeg.setFfmpegPath(ffmpegPath);
 
-const runTask = async () => {
-  // This function will run every 15 minutes
-  console.log('Running cron job...');
-  async function convert(input, output, rid,accessToken, callback) {
-    try {
-      // console.log(accessToken);
-      console.log("Fetching video from drive");
-      axios({
-        method: 'GET',
-        url: input,
-        responseType: 'arraybuffer',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        }
-      })
-        .then((response) => {
-          console.log(response.status);
-          console.log(response.statusText);
-          const fileData = Buffer.from(response.data);
-          fs.writeFileSync(`${rid}.m4a`, fileData)
-          console.log("converting to audio")
-          // Pipe the downloaded video to FFmpeg for conversion
-          ffmpeg(`${rid}.m4a`)
-          .output(output)
-          .audioCodec('libmp3lame')
-          .on('end', () => {
-            console.log('Conversion complete!');
-            try{
-              fs.unlinkSync(`${rid}.m4a`);
-            }catch(err){
-              console.log(err);
-            }
-            callback(null);
-          })
-          .on('error', (err) => {
-            console.error('An error occurred:', err.message);
-            callback(err)
-          })
-          .run();
-        })
-        .catch((err) => {
-          console.error('Error during download:',err.response.status,err.response.statusText,err.response.headers);
-          return callback(err.message);
-        });
-      }
-      catch (err) {
-        console.log(err);
-      }
-  }
-  //starts here
-  try{
-    //gets meets where file array is empty
-    let files = await prisma.file.findMany({
-      where: {
-        transcriptionComplete: false
+const convert = async (input, output, rid, accessToken) => {
+  try {
+    console.log("Fetching video from drive");
+    const response = await axios({
+      method: 'GET',
+      url: input,
+      responseType: 'arraybuffer',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       }
     });
-    console.log(files);
-    files.map(async (file) => {
-      const { id, audioId } = file;
-      const rid = audioId;
-      const accessToken = await(handler(process.env.DRIVE_EMAIL));
-      // console.log(accessToken,id,audioId);
-      convert(`https://www.googleapis.com/drive/v3/files/${rid}?alt=media`, `./${id}.wav`,rid,accessToken, async function(err){
-        if(!err) {
-            console.log('conversion complete');
-            let data = new FormData();
-            data.append('audio_data', fs.createReadStream(`./${id}.wav`));
-            data.append('num_speaker', 1);
-            
-            let config = {
-              method: 'post',
-              maxBodyLength: Infinity,
-              url: process.env.ASR_URL,
-              headers: { 
-                ...data.getHeaders()
-              },
-              data : data
-            };
-          
-            console.log("Sending data to asr")
-            try{
-              const response =  await fetch(config.url, {
-                  method: config.method,
-                  headers:{
-                    ...data.getHeaders()
-                  },
-                  body: data
-              });
-              console.log(response);
-              if (!response.ok) {
-                fs.unlinkSync(`./${id}.wav`);
-                throw new Error('Failed to upload the converted file.');
-              }
-              console.log("waiting from response from asr")
-              const json = await response.json();
-              //delete wav file
-              fs.unlinkSync(`./${id}.wav`);
-              console.log(json);
-              json.data.map((item) => {
-                item = JSON.parse(item);
-                item.map(async (item) => {
-                let speaker = item.speaker;
-                let start_time = item.start_time.toString();
-                let end_time = item.end_time.toString();
-                let text = item.text;
-                speaker = speaker.split("_")[1];
-                speaker = parseInt(speaker);
-                //store to db
-                const transcript = await prisma.transcript.create({
-                  data: {
-                    speaker: speaker,
-                    startTime: start_time,
-                    endTime: end_time,
-                    text: text,
-                    meetingId:id,
-                  }
-                });
-                console.log(transcript);
-              });
-            });
-            }catch(err){
-              console.log(err);
-            }
-          }
-          else{
+
+    console.log(response.status);
+    console.log(response.statusText);
+    const fileData = Buffer.from(response.data);
+    fs.writeFileSync(`${rid}.m4a`, fileData);
+    console.log("Converting to audio");
+
+    return new Promise((resolve, reject) => {
+      ffmpeg(`${rid}.m4a`)
+        .output(output)
+        .audioCodec('libmp3lame')
+        .on('end', () => {
+          console.log('Conversion complete!');
+          try {
+            fs.unlinkSync(`${rid}.m4a`);
+            resolve();
+          } catch (err) {
             console.log(err);
+            reject(err);
           }
+        })
+        .on('error', (err) => {
+          console.error('An error occurred:', err.message);
+          reject(err);
+        })
+        .run();
+    });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+const processFile = async (file) => {
+  const { id, audioId, meetingId } = file;
+  const rid = audioId;
+  const accessToken = await handler(process.env.DRIVE_EMAIL);
+
+  try {
+    await convert(
+      `https://www.googleapis.com/drive/v3/files/${rid}?alt=media`,
+      `./${id}.wav`,
+      rid,
+      accessToken
+    );
+
+    const data = new FormData();
+    data.append('audio_data', fs.createReadStream(`./${id}.wav`));
+    data.append('num_speaker', 1);
+
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: process.env.ASR_URL,
+      headers: {
+        ...data.getHeaders(),
+      },
+      data: data,
+    };
+
+    console.log("Sending data to ASR");
+
+    const response = await fetch(config.url, {
+      method: config.method,
+      headers: {
+        ...data.getHeaders(),
+      },
+      body: data,
+    });
+
+    console.log(response);
+
+    if (!response.ok) {
+      fs.unlinkSync(`./${id}.wav`);
+      throw new Error('Failed to upload the converted file.');
+    }
+
+    console.log("Waiting for response from ASR");
+    const json = await response.json();
+
+    //delete wav file
+    fs.unlinkSync(`./${id}.wav`);
+
+    console.log(json);
+    json.data.map(async (item) => {
+      item = JSON.parse(item);
+      item.map(async (item) => {
+        let speaker = item.speaker;
+        let start_time = item.start_time.toString();
+        let end_time = item.end_time.toString();
+        let text = item.text;
+        speaker = speaker.split("_")[1];
+        speaker = parseInt(speaker);
+        
+        //store to db
+        const transcript = await prisma.transcript.create({
+          data: {
+            speaker: speaker,
+            startTime: start_time,
+            endTime: end_time,
+            text: text,
+            meetingId: meetingId,
+          },
         });
+
+        return console.log(transcript);
       });
-  }catch(err){
+    });
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+const runTask = async () => {
+  console.log('Running cron job...');
+
+  try {
+    // Get files where transcriptionComplete is false
+    const files = await prisma.file.findMany({
+      where: {
+        transcriptionComplete: false,
+      },
+    });
+
+    console.log(files);
+
+    for (const file of files) {
+      await processFile(file);
+    }
+  } catch (err) {
     console.log(err);
   }
 };
 
 const job = () => {
-// Run the task immediately
-runTask();
+  // Run the task immediately
+  runTask();
 
-// Schedule the task to run every  minutes
-cron.schedule('*/120 * * * *', runTask);
-}
+  // Schedule the task to run every 120 minutes
+  cron.schedule('*/60 * * * *', runTask);
+};
 
 module.exports = job;
