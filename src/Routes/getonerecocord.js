@@ -13,6 +13,7 @@ async function handler(req, res) {
         include: {
             comments: true,
             file: true,
+            transcript: true,
         }
     });
     console.log(meeting);
