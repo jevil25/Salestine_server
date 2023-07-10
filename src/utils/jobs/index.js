@@ -69,7 +69,7 @@ const processFile = async (file) => {
 
     const data = new FormData();
     data.append('audio_data', fs.createReadStream(`./${id}.wav`));
-    data.append('num_speaker', 1);
+    data.append('num_speaker', 7);
 
     const config = {
       method: 'post',
