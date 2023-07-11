@@ -29,15 +29,9 @@ app.use("/getonerecord", require("./Routes/getonerecocord"));
 app.use("/calender", require("./Routes/googlecalender"));
 app.use("/diarizer", require("./Routes/diarizer"));
 app.use("/transcribe", require("./Routes/transcribe"));
-<<<<<<< Updated upstream
-app.use("/changepassword",require('./Routes/changepassword'));
-app.use("/getVideoLink",require('./Routes/getVideoLink'));
-app.use("/getUserDetails",require('./Routes/getUserDetails'));
-=======
 app.use("/changepassword",require('./Routes/changepassword'))
 app.use("/getVideoLink",require('./Routes/getVideoLink'))
 app.use("/voicerec",upload.single('audio_data'),require("./Routes/voicerec"))
->>>>>>> Stashed changes
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
