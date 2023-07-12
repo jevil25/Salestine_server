@@ -102,9 +102,9 @@ const processFile = async (file) => {
 
     //delete wav file
     fs.unlinkSync(`./${id}.wav`);
-    if(json.status === false){
-      return false;
-    }
+    // if(json.status === false){
+    //   return false;
+    // }
 
     console.log(json);
     json.data.map(async (item) => {
