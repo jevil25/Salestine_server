@@ -1,4 +1,3 @@
-const { Blob } = require('node:buffer');
 const prisma = require("../utils/db/prisma");
 const FormData = require('form-data');
 const fs = require('fs');
@@ -15,7 +14,12 @@ async function handler(req, res) {
   const audio_data = req.file;
   console.log(audio_data);
   //the file is in webm format, so we need to convert it to wav
-  fs.writeFileSync("audio_data.wav", audio_data.buffer);
+  try{
+    fs.writeFileSync("audio_data.wav", audio_data.buffer);
+  }catch(err){
+    console.log(err);
+    return res.status(500).json({ message: "Internal Server Error",status:false });
+  }
   if (!email || !audio_data) {
     return res.status(400).json({ status:false, message: "Missing data!" });
   }
