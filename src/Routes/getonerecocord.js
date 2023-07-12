@@ -14,6 +14,7 @@ async function handler(req, res) {
             comments: true,
             file: true,
             transcript: true,
+            analysis: true,
         }
     });
     console.log(meeting);
