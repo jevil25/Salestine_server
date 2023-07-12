@@ -27,7 +27,7 @@ async function handler(req, res) {
   } catch (error) {
     // Handle any errors that occurred during the operation
     console.error("Error retrieving recordings:", error);
-    res.status(500).json({ error: "Failed to retrieve recordings" });
+    res.status(500).json({ error: "Failed to retrieve recordings",err:error });
   }
 }
 
