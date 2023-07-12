@@ -46,7 +46,7 @@ async function handler(req, res) {
             voice_rec: "stored",
           },
         });
-        // fs.unlinkSync("audio_data.wav");
+        fs.unlinkSync("audio_data.wav");
         res
           .status(200)
           .json({ message: "Voice endpoint completed", user, info,status:true });
