@@ -134,7 +134,7 @@ const processFile = async (file) => {
         },
         data: {
           transcriptionComplete: true,
-          diarizerText: json.data,
+          diarizerText: json.data[0],
         },
       });
       console.log(file);
