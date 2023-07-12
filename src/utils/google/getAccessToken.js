@@ -35,7 +35,7 @@ async function handler(email) {
       })
       .then((res) => res.json())
       .then(async (json) => {
-        // console.log(json);
+        console.log(json);
         const { access_token, expires_in } = json;
         await prisma.user.update({
           where: { email },

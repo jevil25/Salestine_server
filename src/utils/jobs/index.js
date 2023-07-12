@@ -138,13 +138,13 @@ const processFile = async (file) => {
     const analysis = await prisma.analysis.create({
       data: {
         meetingId: meetingId,
-        diarizerText: json,
+        diarizerText: json.data[0],
       },
     });
     const analy = await fetch(process.env.ANALYZE_URL, {
       method: 'post',
       body: {
-        diar_data: json,
+        diar_data: json.data[0],
       }
     }).then((res) => res.json()).then(async (data) => {
       console.log(data);
