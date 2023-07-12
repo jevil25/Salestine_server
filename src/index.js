@@ -9,6 +9,7 @@ const prisma = require("./utils/db/prisma");
 const job = require("./utils/jobs/index");
 const ping = require("./utils/jobs/serverOnline");
 const file = require("./utils/jobs/getFiles");
+const analysis = require("./utils/jobs/analysis");
 
 app.use(cors());
 
@@ -44,6 +45,7 @@ ping();
 if(process.env.ASR_SERVER === "true"){
   job();
   file();
+  analysis();
 }
 
 app.listen(port, () => {
