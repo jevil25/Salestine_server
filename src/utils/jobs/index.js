@@ -102,6 +102,9 @@ const processFile = async (file) => {
 
     //delete wav file
     fs.unlinkSync(`./${id}.wav`);
+    if(json.status === false){
+      return false;
+    }
 
     console.log(json);
     json.data.map(async (item) => {
@@ -131,15 +134,10 @@ const processFile = async (file) => {
         },
         data: {
           transcriptionComplete: true,
+          diarizerText: json.data,
         },
       });
       console.log(file);
-    });
-    const analysis = await prisma.analysis.create({
-      data: {
-        meetingId: meetingId,
-        diarizerText: json.data[0],
-      },
     });
     const analy = await fetch(process.env.ANALYZE_URL, {
       method: 'post',
@@ -148,13 +146,60 @@ const processFile = async (file) => {
       }
     }).then((res) => res.json()).then(async (data) => {
       console.log(data);
-      await prisma.analysis.update({
+      if(data.status === false){
+        const analy = await prisma.analysis.create({
+          data: {
+            meetingId: meetingId,
+          },
+        });
+        return false;
+      }
+      const analysis = data.data;
+      data.forEach(async (item) => {
+        const speaker = Object.keys(item)[0];
+        const analysisData = item[speaker];
+
+        // Extract the values from the analysisData object
+        const talkRatio = analysisData.talk_ratio;
+        const longestMonologue = analysisData.longest_monologue;
+        const longestCustomerStory = analysisData.longest_customer_story;
+        const interactivity = analysisData.interactivity;
+        const patience = analysisData.patience;
+        const question = analysisData.question;
+
+        // Store the analysis data in the database
+        const analysis = await prisma.analysis.upsert({
+          where: {
+            meetingId: meetingId,
+          },
+          create: {
+            meetingId: meetingId,
+            speaker: speaker,
+            talkRatio: talkRatio,
+            longestMonologue: longestMonologue,
+            longestCustomerStory: longestCustomerStory,
+            Interactivity: interactivity,
+            patience: patience,
+            question: question,
+          },
+          update: {
+            speaker: speaker,
+            talkRatio: talkRatio,
+            longestMonologue: longestMonologue,
+            longestCustomerStory: longestCustomerStory,
+            Interactivity: interactivity,
+            patience: patience,
+            question: question,
+          }
+        });
+      });
+      await prisma.file.update({
         where: {
-          id: analysis.id,
+          meetingId: meetingId,
         },
         data: {
-          analysisText: data,
-        },
+          analysisComplete: true,
+        }
       });
     });
   } catch (err) {

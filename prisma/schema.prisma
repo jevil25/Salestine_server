@@ -71,6 +71,8 @@ model file {
   timestamp             DateTime @default(now())
   meetingId             String   @unique
   transcriptionComplete Boolean? @default(false)
+  diarizerText          String?
+  analysisComplete      Boolean? @default(false)
   meeting               meeting  @relation(fields: [meetingId], references: [meetid])
 }
 
@@ -95,12 +97,17 @@ model transcript {
 }
 
 model analysis {
-  id           String   @id @default(cuid()) @map("_id")
-  analysisText String?
-  diarizerText String
-  timestamp    DateTime @default(now())
-  meetingId    String
-  meeting      meeting  @relation(fields: [meetingId], references: [meetid])
+  id                   String   @id @default(cuid()) @map("_id")
+  speaker              String?
+  talkRatio            Json?
+  longestMonologue     Json?
+  longestCustomerStory Json?
+  Interactivity        Json?
+  patience             Json?
+  question             Int?
+  timestamp            DateTime @default(now())
+  meetingId            String
+  meeting              meeting  @relation(fields: [meetingId], references: [meetid])
 }
 
 enum Role {
