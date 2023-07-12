@@ -3,6 +3,9 @@ const prisma = require("../utils/db/prisma");
 const FormData = require('form-data');
 const fs = require('fs');
 const fetch = require('node-fetch');
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const ffmpeg = require('fluent-ffmpeg');
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 async function handler(req, res) {
   if (req.method !== "POST") {
@@ -11,17 +14,18 @@ async function handler(req, res) {
   let { email } = req.body;
   const audio_data = req.file;
   console.log(audio_data);
+  //the file is in webm format, so we need to convert it to wav
   fs.writeFileSync("audio_data.wav", audio_data.buffer);
   if (!email || !audio_data) {
-    return res.status(400).json({ message: "Missing data!" });
+    return res.status(400).json({ status:false, message: "Missing data!" });
   }
   try {
-    const user = await prisma.user.findUniqueOrThrow({
+    const user = await prisma.user.findUnique({
       where: { email },
     });
     if (!user) {
       console.log("user not found");
-      return res.status(401).json({ message: "Un-registered Email" });
+      return res.status(401).json({ status:false,message: "Un-registered Email" });
     }
     const formData = new FormData();
     formData.append("audio_data", fs.createReadStream("audio_data.wav"));
@@ -42,14 +46,14 @@ async function handler(req, res) {
             voice_rec: "stored",
           },
         });
-        fs.unlinkSync("audio_data.wav");
+        // fs.unlinkSync("audio_data.wav");
         res
           .status(200)
-          .json({ message: "Voice endpoint completed", user, info });
+          .json({ message: "Voice endpoint completed", user, info,status:true });
       });
   } catch (err) {
     console.log("Internal Server Error: " + err);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error",status:false });
   }
 }
 module.exports = handler;

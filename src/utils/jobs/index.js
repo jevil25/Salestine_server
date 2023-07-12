@@ -7,7 +7,6 @@ const prisma = require("../db/prisma");
 const handler = require('../google/getAccessToken');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
-const { isNull } = require('util');
 ffmpeg.setFfmpegPath(ffmpegPath);
 
 const convert = async (input, output, rid, accessToken) => {

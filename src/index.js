@@ -32,6 +32,7 @@ app.use("/transcribe", require("./Routes/transcribe"));
 app.use("/changepassword",require('./Routes/changepassword'))
 app.use("/getVideoLink",require('./Routes/getVideoLink'))
 app.use("/voicerec",upload.single('audio_data'),require("./Routes/voicerec"))
+app.use("/getUserDetails",require("./Routes/getUserDetails"))
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
