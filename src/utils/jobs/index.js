@@ -135,6 +135,28 @@ const processFile = async (file) => {
       });
       console.log(file);
     });
+    const analysis = await prisma.analysis.create({
+      data: {
+        meetingId: meetingId,
+        diarizerText: json,
+      },
+    });
+    const analy = await fetch(process.env.ANALYZE_URL, {
+      method: 'post',
+      body: {
+        diar_data: json,
+      }
+    }).then((res) => res.json()).then(async (data) => {
+      console.log(data);
+      await prisma.analysis.update({
+        where: {
+          id: analysis.id,
+        },
+        data: {
+          analysisText: data,
+        },
+      });
+    });
   } catch (err) {
     console.log(err);
     throw err;
@@ -167,7 +189,7 @@ const job = () => {
   runTask();
 
   // Schedule the task to run every 120 minutes
-  cron.schedule('*/60 * * * *', runTask);
+  cron.schedule('*/180 * * * *', runTask);
 };
 
 module.exports = job;

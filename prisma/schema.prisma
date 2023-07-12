@@ -61,6 +61,7 @@ model meeting {
   User          User?        @relation(fields: [meetHostId], references: [id])
   Company       Company?     @relation(fields: [companyid], references: [id])
   file          file[]
+  analysis      analysis[]
 }
 
 model file {
@@ -91,6 +92,15 @@ model transcript {
   speaker   Int
   meetingId String
   meeting   meeting  @relation(fields: [meetingId], references: [meetid])
+}
+
+model analysis {
+  id           String   @id @default(cuid()) @map("_id")
+  analysisText String?
+  diarizerText String
+  timestamp    DateTime @default(now())
+  meetingId    String
+  meeting      meeting  @relation(fields: [meetingId], references: [meetid])
 }
 
 enum Role {
