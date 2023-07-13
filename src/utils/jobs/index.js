@@ -139,10 +139,13 @@ const processFile = async (file) => {
       });
       console.log(file);
     });
+    const msg = new FormData();
+    console.log("analysis request sent")
+    msg.append('diar_data', json.data[0]);
     const analy = await fetch(process.env.ANALYZE_URL, {
       method: 'post',
       body: {
-        diar_data: json.data[0],
+        diar_data: msg,
       }
     }).then((res) => res.json()).then(async (data) => {
       console.log(data);
@@ -155,7 +158,7 @@ const processFile = async (file) => {
         return false;
       }
       const analysis = data.data;
-      data.forEach(async (item) => {
+      analysis.forEach(async (item) => {
         const speaker = Object.keys(item)[0];
         const analysisData = item[speaker];
 
