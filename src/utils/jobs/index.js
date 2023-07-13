@@ -8,6 +8,9 @@ const handler = require('../google/getAccessToken');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
 ffmpeg.setFfmpegPath(ffmpegPath);
+let ffprobePath = ffmpegPath.replace('ffmpeg.exe', 'ffprobe.exe');
+ffprobePath = ffprobePath.replace('ffmpeg-installer', 'ffprobe-installer');
+ffmpeg.setFfprobePath(ffprobePath);
 
 const convert = async (input, output, rid, accessToken) => {
   try {
@@ -65,6 +68,22 @@ const processFile = async (file) => {
       rid,
       accessToken
     );
+    ffmpeg.ffprobe(`./${id}.wav`, async function(err, metadata) {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
+      console.log(metadata.format.duration);
+      const file = await prisma.file.update({
+        where: {
+          id: id,
+        },
+        data: {
+          duration: parseInt(metadata.format.duration),
+        },
+      });
+      // console.log(file)
+    });
 
     const data = new FormData();
     data.append('audio_data', fs.createReadStream(`./${id}.wav`));

@@ -71,6 +71,7 @@ model file {
   timestamp             DateTime @default(now())
   meetingId             String   @unique
   transcriptionComplete Boolean? @default(false)
+  duration              Int?
   diarizerText          String?
   analysisComplete      Boolean? @default(false)
   meeting               meeting  @relation(fields: [meetingId], references: [meetid])

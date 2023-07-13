@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@ffprobe-installer/ffprobe": "^2.1.0",
     "@google-cloud/local-auth": "^2.1.0",
     "@google-cloud/speech": "^5.5.1",
     "@prisma/client": "^4.16.0",
