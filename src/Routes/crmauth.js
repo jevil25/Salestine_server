@@ -28,9 +28,13 @@ async function handler(req, res) {
         "x-apideck-consumer-id": email,
       },
     }).then((res)=>res.json());
-    if(data.error == "Unauthorized"){
-      res.status(400).json({message:"Integrate your CRM"})
+    if(data.error && data.error == "Unauthorized"){
+      res.status(400).json({success:false,message:"Integrate your CRM"})
     }
+    else{
+      res.status(200).json({success:true,data:data})
+    }
+    
   } else {
     res.status(400).json({ error: "Invalid flag" });
   }
