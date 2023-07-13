@@ -30,8 +30,8 @@ const analysis = async () => {
                 });
                 return false;
                 }
-                const analysis = data.data;
-                data.forEach(async (item) => {
+                const analysis1 = data.data;
+                analysis1.forEach(async (item) => {
                 const speaker = Object.keys(item)[0];
                 const analysisData = item[speaker];
         
@@ -46,10 +46,10 @@ const analysis = async () => {
                 // Store the analysis data in the database
                 const analysis = await prisma.analysis.upsert({
                     where: {
-                        meetingId: meetingId,
+                        meetingId: items.meetingId,
                     },
                     create: {
-                        meetingId: meetingId,
+                        meetingId: items.meetingId,
                         speaker: speaker,
                         talkRatio: talkRatio,
                         longestMonologue: longestMonologue,
