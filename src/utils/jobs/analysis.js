@@ -1,8 +1,12 @@
+const { json } = require('express');
 const prisma = require('../db/prisma');
 const cron = require('node-cron');
+const fetch = require('node-fetch');
+const FormData = require('form-data');
 
 const analysis = async () => {
     try{
+        console.log("inside analysis")
         const analysis = await prisma.file.findMany({
             where: {
                 transcriptionComplete: true,
@@ -10,11 +14,12 @@ const analysis = async () => {
             },
         });
         analysis.forEach(async (items) => {
+            const data = new FormData();
+            console.log("analysis request sent")
+            data.append('diar_data', items.diarizerText);
             const analy = await fetch(process.env.ANALYZE_URL, {
                 method: 'post',
-                body: {
-                diar_data: items.diarizerText,
-                }
+                body: data,
             }).then((res) => res.json()).then(async (data) => {
                 console.log(data);
                 if(data.status === false){
@@ -80,6 +85,7 @@ const analysis = async () => {
 }
 
 const analysisTimer = () => {
+    analysis()
     //run every 60mins
     cron.schedule('0 */60 * * * *', () => {
         analysis();

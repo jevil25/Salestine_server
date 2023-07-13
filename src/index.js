@@ -45,7 +45,8 @@ ping();
 if(process.env.ASR_SERVER === "true"){
   job();
   file();
-  // analysis();
+  console.log("analysis")
+  analysis();
 }
 
 app.listen(port, () => {
