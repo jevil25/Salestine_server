@@ -32,45 +32,47 @@ const analysis = async () => {
                 }
                 const analysis1 = data.data;
                 analysis1.forEach(async (item) => {
-                const speaker = Object.keys(item)[0];
-                const analysisData = item[speaker];
-        
-                // Extract the values from the analysisData object
-                const talkRatio = analysisData.talk_ratio;
-                const longestMonologue = analysisData.longest_monologue;
-                const longestCustomerStory = analysisData.longest_customer_story;
-                const interactivity = analysisData.interactivity;
-                const patience = analysisData.patience;
-                const question = analysisData.question;
-        
-                // Store the analysis data in the database
-                const analysis = await prisma.analysis.upsert({
-                    where: {
-                        meetingId_speaker: {
+                const speakers = Object.keys(item);
+                for (const speaker of speakers) {
+                    const analysisData = item[speaker];
+            
+                    // Extract the values from the analysisData object
+                    const talkRatio = analysisData.talk_ratio;
+                    const longestMonologue = analysisData.longest_monologue;
+                    const longestCustomerStory = analysisData.longest_customer_story;
+                    const interactivity = analysisData.interactivity;
+                    const patience = analysisData.patience;
+                    const question = analysisData.question;
+            
+                    // Store the analysis data in the database
+                    const analysis = await prisma.analysis.upsert({
+                        where: {
+                            meetingId_speaker: {
+                                meetingId: items.meetingId,
+                                speaker: speaker,
+                            }
+                        },
+                        create: {
                             meetingId: items.meetingId,
                             speaker: speaker,
+                            talkRatio: talkRatio,
+                            longestMonologue: longestMonologue,
+                            longestCustomerStory: longestCustomerStory,
+                            Interactivity: interactivity,
+                            patience: patience,
+                            question: question,
+                        },
+                        update: {
+                            speaker: speaker,
+                            talkRatio: talkRatio,
+                            longestMonologue: longestMonologue,
+                            longestCustomerStory: longestCustomerStory,
+                            Interactivity: interactivity,
+                            patience: patience,
+                            question: question,
                         }
-                    },
-                    create: {
-                        meetingId: items.meetingId,
-                        speaker: speaker,
-                        talkRatio: talkRatio,
-                        longestMonologue: longestMonologue,
-                        longestCustomerStory: longestCustomerStory,
-                        Interactivity: interactivity,
-                        patience: patience,
-                        question: question,
-                    },
-                    update: {
-                        speaker: speaker,
-                        talkRatio: talkRatio,
-                        longestMonologue: longestMonologue,
-                        longestCustomerStory: longestCustomerStory,
-                        Interactivity: interactivity,
-                        patience: patience,
-                        question: question,
-                    }
-                });
+                    });
+                }
                 });
                 await prisma.file.update({
                     where: {
