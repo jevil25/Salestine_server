@@ -108,6 +108,8 @@ model analysis {
   timestamp            DateTime @default(now())
   meetingId            String
   meeting              meeting  @relation(fields: [meetingId], references: [meetid])
+
+  @@unique([meetingId, speaker])
 }
 
 enum Role {

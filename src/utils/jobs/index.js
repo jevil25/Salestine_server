@@ -174,6 +174,7 @@ const processFile = async (file) => {
         const analysis = await prisma.analysis.upsert({
           where: {
             meetingId: meetingId,
+            speaker: speaker,
           },
           create: {
             meetingId: meetingId,
