@@ -23,7 +23,7 @@ const getTeamDetails = async (req, res) => {
         //get all calls of this company 
         const calls = await prisma.meeting.findMany({
             where: {
-                companyId: user.companyId,
+                companyid: user.companyId,
             },
             include: {
                 analysis: true,
