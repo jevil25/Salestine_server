@@ -173,8 +173,10 @@ const processFile = async (file) => {
         // Store the analysis data in the database
         const analysis = await prisma.analysis.upsert({
           where: {
-            meetingId: meetingId,
-            speaker: speaker,
+            meetingId_speaker: {
+              meetingId: meetingId,
+              speaker: speaker,
+          }
           },
           create: {
             meetingId: meetingId,
