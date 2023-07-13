@@ -28,7 +28,7 @@ const getTeamDetails = async (req, res) => {
             include: {
                 analysis: true,
                 Company: true,
-                files: true,
+                file: true,
             }
         });
         return res.status(200).json({ team: team, calls: calls, status: true });
