@@ -17,10 +17,12 @@ async function handler(req, res) {
       },
     }).then((res) => res.json());
     res.status(200).json({ data: resp });
-  } else if (flag == "listopp") {
-    if (req.method != "GET") {
-      res.status(400).json({ message: "Invalid method,only GET allowed" });
+  } 
+  else if (flag == "listopp") {
+    if (req.method != "POST") {
+      res.status(400).json({ message: "Invalid method,only post allowed" });
     }
+    const { email } = req.body;
     const data = await fetch("https://unify.apideck.com/crm/opportunities", {
       headers: {
         Authorization: "Bearer " + APIDECK_API_KEY,

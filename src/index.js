@@ -34,7 +34,7 @@ app.use("/changepassword",require('./Routes/changepassword'))
 app.use("/getVideoLink",require('./Routes/getVideoLink'))
 app.use("/voicerec",upload.single('audio_data'),require("./Routes/voicerec"))
 app.use("/getUserDetails",require("./Routes/getUserDetails"))
-app.use("/crmauth",require("./Routes/crmauth"))
+app.use("/crm",require("./Routes/crmauth"))
 app.use("/getUserDetailsById",require("./Routes/getUserDetailsById"))
 
 app.get("/", (req, res) => {
