@@ -23,7 +23,7 @@ async function handler(req, res) {
       res.status(400).json({ message: "Invalid method,only post allowed" });
     }
     const { email } = req.body;
-    const data = await fetch("https://unify.apideck.com/crm/opportunities", {
+    const data = await fetch("https://unify.apideck.com/crm/opportunities?raw=true", {
       headers: {
         Authorization: "Bearer " + APIDECK_API_KEY,
         "x-apideck-app-id": APIDECK_APP_ID,
@@ -34,7 +34,7 @@ async function handler(req, res) {
       res.status(400).json({success:false,message:"Integrate your CRM"})
     }
     else{
-      res.status(200).json({success:true,data:data})
+      res.status(200).json({message:"success",data:data,})
     }
     
   } else {
