@@ -46,7 +46,7 @@ model Company {
   adminId    String
   users      User[]
   meeting    meeting[]
-  folder     folder?
+  folder     folder[]
 }
 
 model meeting {
@@ -78,8 +78,8 @@ model file {
   analysisComplete      Boolean? @default(false)
   meeting               meeting  @relation(fields: [meetingId], references: [meetid])
   libraryId             String?
-  folder                folder?  @relation(fields: [folderId], references: [id])
-  folderId              String?
+  folder                folder[] @relation(fields: [folderId], references: [id])
+  folderId              String[]
 }
 
 model comment {
@@ -127,8 +127,9 @@ model folder {
   type      FolderType @default(PUBLIC)
   userId    String
   User      User       @relation(fields: [userId], references: [id])
-  file      file[]
-  companyId String     @unique
+  file      file[]     @relation(fields: [fileId], references: [id])
+  fileId    String[]
+  companyId String
   Company   Company    @relation(fields: [companyId], references: [id])
 }
 
