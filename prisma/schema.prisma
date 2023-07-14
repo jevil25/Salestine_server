@@ -30,6 +30,7 @@ model User {
   googleCalendar     String    @default("")
   company            Company?  @relation(fields: [companyId], references: [id])
   meeting            meeting[]
+  folder             folder[]
 }
 
 model Company {
@@ -45,6 +46,7 @@ model Company {
   adminId    String
   users      User[]
   meeting    meeting[]
+  folder     folder?
 }
 
 model meeting {
@@ -75,6 +77,9 @@ model file {
   diarizerText          String?
   analysisComplete      Boolean? @default(false)
   meeting               meeting  @relation(fields: [meetingId], references: [meetid])
+  libraryId             String?
+  folder                folder?  @relation(fields: [folderId], references: [id])
+  folderId              String?
 }
 
 model comment {
@@ -113,6 +118,20 @@ model analysis {
   @@unique([meetingId, speaker])
 }
 
+model folder {
+  id        String     @id @default(cuid()) @map("_id")
+  name      String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  favorite  Boolean    @default(false)
+  type      FolderType @default(PUBLIC)
+  userId    String
+  User      User       @relation(fields: [userId], references: [id])
+  file      file[]
+  companyId String     @unique
+  Company   Company    @relation(fields: [companyId], references: [id])
+}
+
 enum Role {
   SUPERADMIN
   ADMIN
@@ -120,4 +139,9 @@ enum Role {
   USER
   PRESIDENT
   VICEPRESIDENT
+}
+
+enum FolderType {
+  PUBLIC
+  PRIVATE
 }

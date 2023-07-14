@@ -37,6 +37,7 @@ app.use("/getUserDetails",require("./Routes/getUserDetails"))
 app.use("/crm",require("./Routes/crmauth"))
 app.use("/getUserDetailsById",require("./Routes/getUserDetailsById"))
 app.use("/getTeamDetails",require("./Routes/getTeamDetails"));
+app.use("/library",require("./Routes/library"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
