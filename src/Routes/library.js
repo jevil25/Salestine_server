@@ -158,4 +158,35 @@ router.post("/addfolder", async (req, res) => {
     }
 });
 
+router.post("/updateFav", async (req, res) => {
+    try{
+        const { id } = req.body;
+        if(!id){
+            return res.status(404).json({ message: "Id not found.",status: false });
+        }
+       //check if folder exists
+        const folder = await prisma.folder.findUnique({
+          where: { id },
+        });
+        if (!folder) {
+          return res.status(404).json({ message: "Folder not found.",status: false });
+        }
+        //update folder
+        const folderUpdate = await prisma.folder.update({
+            where: { id },
+            data: {
+                favorite: !folder.favorite,
+            }
+        });
+        if (!folderUpdate) {
+            return res.status(404).json({ message: "Folder not updated.",status: false });
+        }
+        //return the folder
+        return res.status(200).json({ folderUpdate,status: true });
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({ message: "Internal Server Error.",status: false });
+    }
+});
+
 module.exports = router;

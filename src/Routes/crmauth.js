@@ -1,5 +1,6 @@
 const { APIDECK_API_KEY } = process.env;
 const { APIDECK_APP_ID } = process.env;
+const fetch = require("node-fetch");
 
 async function handler(req, res) {
   try{
