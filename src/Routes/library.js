@@ -3,8 +3,8 @@ const express = require("express");
 const router = express.Router();
 
 //router to get library of a user
-router.get("/", async (req, res) => {
-    const { email } = req.query;
+router.post("/", async (req, res) => {
+    const { email } = req.body;
     if(!email){
         return res.status(404).json({ message: "Email not found.",status: false });
     }
