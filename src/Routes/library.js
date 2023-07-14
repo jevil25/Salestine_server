@@ -22,6 +22,9 @@ router.post("/", async (req, res) => {
             const folder = await prisma.folder.findMany({
                 where: {
                     companyId: user.companyId,
+                },
+                include:{
+                    User: true,
                 }
             });
             return res.status(200).json({ folder,status: true });
@@ -29,13 +32,20 @@ router.post("/", async (req, res) => {
         //check if user is super admin if soo send library of all the companies
         if(user.role === "SUPERADMIN"){
             //get library of the company
-            const folder = await prisma.folder.findMany();
+            const folder = await prisma.folder.findMany({
+                include:{
+                    User: true,
+                }
+            });
             return res.status(200).json({ folder,status: true });
         }
         //get library of the user
         const folder = await prisma.folder.findMany({
             where: {
                 userId: user.id,
+            },
+            include:{
+                User: true,
             }
         });
         if (!folder) {
