@@ -21,7 +21,7 @@ async function handler(req, res) {
         const user = await prisma.user.findUnique({
             where: { email },
             include:{
-                meetings:true,
+                meeting:true
             }
         });
         if (!user) {
