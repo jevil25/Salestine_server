@@ -1,6 +1,7 @@
 const { APIDECK_API_KEY } = process.env;
 const { APIDECK_APP_ID } = process.env;
 const fetch = require("node-fetch");
+const prisma = require("../utils/db/prisma");
 
 async function handler(req, res) {
   try{
@@ -36,7 +37,10 @@ async function handler(req, res) {
         res.status(400).json({success:false,message:"Integrate your CRM"})
       }
       else{
-        res.status(200).json({message:"success",data:data,})
+        const user = await prisma.user.findUnique({
+          where: { email },
+        });
+        res.status(200).json({message:"success",data:data,user})
       }
       
     } else {

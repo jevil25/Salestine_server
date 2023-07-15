@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = process.env;
+const prisma = require("../utils/db/prisma")
 
 async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -17,7 +18,16 @@ async function handler(req, res) {
         if(result.exp < Date.now() / 1000){
             return res.status(401).json({ message: 'Token expired',status:401 });
         }
-        res.status(200).json({ message: 'Token verified',status:200 });
+        const user = await prisma.user.findUnique({
+            where: { email },
+            include:{
+                meetings:true,
+            }
+        });
+        if (!user) {
+            return res.status(404).json({ message: "User not found.",status: false });
+        }
+        res.status(200).json({ message: 'Token verified',status:200, user });
     }
     catch (error) {
         console.error(error);
