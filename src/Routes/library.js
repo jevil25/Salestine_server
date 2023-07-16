@@ -25,6 +25,7 @@ router.post("/", async (req, res) => {
                 },
                 include:{
                     User: true,
+                    Company: true,
                 }
             });
             return res.status(200).json({ folder,status: true });
@@ -35,19 +36,30 @@ router.post("/", async (req, res) => {
             const folder = await prisma.folder.findMany({
                 include:{
                     User: true,
+                    Company: true,
                 }
             });
             return res.status(200).json({ folder,status: true });
         }
-        //get library of the user
+        //get library of the users company with public folder and private folder of user
         const folder = await prisma.folder.findMany({
             where: {
-                userId: user.id,
+                OR: [
+                    {
+                        companyId: user.companyId,
+                        type: "PUBLIC",
+                    },
+                    {
+                        userId: user.id,
+                        type: "PRIVATE",
+                    }
+                ]
             },
             include:{
                 User: true,
+                Company: true,
             }
-        });
+        })
         if (!folder) {
             return res.status(404).json({ message: "Folder not found.",status: false });
         }

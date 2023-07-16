@@ -50,20 +50,21 @@ model Company {
 }
 
 model meeting {
-  id            String       @id @default(cuid()) @map("_id")
-  topic         String       @default("")
-  companyid     String
-  startTime     String
-  meetid        String       @unique
-  meetHostId    String
-  meetPassword  String
-  recordingLink String?      @default("")
-  comments      comment[]
-  transcript    transcript[]
-  User          User?        @relation(fields: [meetHostId], references: [id])
-  Company       Company?     @relation(fields: [companyid], references: [id])
-  file          file[]
-  analysis      analysis[]
+  id           String       @id @default(cuid()) @map("_id")
+  topic        String       @default("")
+  companyid    String
+  startTime    String
+  meetid       String       @unique
+  meetHostId   String
+  meetPassword String
+  awsKey       String?
+  duration     Int
+  comments     comment[]
+  transcript   transcript[]
+  User         User?        @relation(fields: [meetHostId], references: [id])
+  Company      Company?     @relation(fields: [companyid], references: [id])
+  file         file[]
+  analysis     analysis[]
 }
 
 model file {
@@ -73,7 +74,6 @@ model file {
   timestamp             DateTime @default(now())
   meetingId             String   @unique
   transcriptionComplete Boolean? @default(false)
-  duration              Int?
   diarizerText          String?
   analysisComplete      Boolean? @default(false)
   meeting               meeting  @relation(fields: [meetingId], references: [meetid])
