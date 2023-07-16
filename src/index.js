@@ -10,6 +10,7 @@ const job = require("./utils/jobs/index");
 const ping = require("./utils/jobs/serverOnline");
 const file = require("./utils/jobs/getFiles");
 const analysis = require("./utils/jobs/analysis");
+const awsfunc = require('./utils/jobs/aws');
 
 app.use(cors());
 
@@ -45,12 +46,13 @@ app.get("/", (req, res) => {
 });
 
 ping();
+awsfunc();
 //run the job
 if(process.env.ASR_SERVER === "true"){
-  job();
-  file();
-  console.log("analysis")
-  analysis();
+  // job();
+  // file();
+  // console.log("analysis")
+  // analysis();
 }
 
 app.listen(port, () => {

@@ -11,13 +11,50 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 let ffprobePath = ffmpegPath.replace('ffmpeg.exe', 'ffprobe.exe');
 ffprobePath = ffprobePath.replace('ffmpeg-installer', 'ffprobe-installer');
 ffmpeg.setFfprobePath(ffprobePath);
+const aws = require('aws-sdk');
+require('aws-sdk/lib/maintenance_mode_message').suppress = true;
+const multer = require('multer');
+const multerS3 = require('multer-s3');
 
-const processFile = async (file) => {
-  const { awsKey } = file;
+const processFile = async () => {
+  // const { awsKey } = file;
   //get file from aws s3 using awsKey
   //update file schema with audio and video keys
-
-
+  const credentials = new aws.Credentials();
+  aws.config.update({
+    region: process.env.REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    secretAccessKey: process.env.AWS_ACCESS_SECRET,
+  });
+  const s3 = new aws.S3();
+    let r = await s3.listObjects({Bucket: process.env.BUCKET}).promise();
+    //map and check for audio file if file has extension .m4a
+    let audioFile = r.Contents.map((item) => {
+      if(item.Key.includes(".m4a")){
+        return item.Key;
+      }
+    });
+    //filter undefined
+    audioFile = audioFile.filter((item) => {
+      if(item !== undefined){
+        return item;
+      }
+    });
+    console.log(audioFile);
+    //get the file and store it in local
+    audioFile.map(async (item) => {
+      const params = {
+        Bucket: process.env.BUCKET,
+        Key: item,
+      };
+      console.log("downloading");
+      const file = await s3.getObject(params).promise();
+      console.log(file);
+      console.log("done");
+      //store the body in local using fs
+      fs.writeFileSync(`./${item}`, file.Body);
+    });
+    
   try {  
     const data = new FormData();
     data.append('audio_data', fs.createReadStream(`./${id}.wav`));
@@ -174,25 +211,25 @@ const runTask = async () => {
 
   try {
     // Get files where transcriptionComplete is false
-    const files = await prisma.meeting.findMany({
-      where: {
-        awsKey:{
-            not: null,
-        }
-      },
-    });
+    // const files = await prisma.meeting.findMany({
+    //   where: {
+    //     awsKey:{
+    //         not: null,
+    //     }
+    //   },
+    // });
 
-    console.log(files);
+    // console.log(files);
 
-    for (const file of files) {
-      await processFile(file);
-    }
+    // for (const file of files) {
+      await processFile();
+    // }
   } catch (err) {
     console.log(err);
   }
 };
 
-const aws = () => {
+const awsfunc = () => {
   // Run the task immediately
   runTask();
 
@@ -200,4 +237,4 @@ const aws = () => {
   cron.schedule('*/180 * * * *', runTask);
 };
 
-module.exports = aws;
+module.exports = awsfunc;
