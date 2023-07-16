@@ -12,9 +12,6 @@ let ffprobePath = ffmpegPath.replace('ffmpeg.exe', 'ffprobe.exe');
 ffprobePath = ffprobePath.replace('ffmpeg-installer', 'ffprobe-installer');
 ffmpeg.setFfprobePath(ffprobePath);
 const aws = require('aws-sdk');
-require('aws-sdk/lib/maintenance_mode_message').suppress = true;
-const multer = require('multer');
-const multerS3 = require('multer-s3');
 
 const processFile = async (file) => {
   const { awsKey,meetid:meetingId } = file;
