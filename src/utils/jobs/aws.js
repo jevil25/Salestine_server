@@ -16,21 +16,28 @@ require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 const multer = require('multer');
 const multerS3 = require('multer-s3');
 
-const processFile = async () => {
-  // const { awsKey } = file;
+const processFile = async (file) => {
+  const { awsKey,meetid:meetingId } = file;
+  // console.log(meetingId);
   //get file from aws s3 using awsKey
   //update file schema with audio and video keys
-  const credentials = new aws.Credentials();
   aws.config.update({
     region: process.env.REGION,
     accessKeyId: process.env.AWS_ACCESS_KEY,
     secretAccessKey: process.env.AWS_ACCESS_SECRET,
   });
   const s3 = new aws.S3();
-    let r = await s3.listObjects({Bucket: process.env.BUCKET}).promise();
+    let r = await s3.listObjects({Bucket: process.env.BUCKET,Prefix: awsKey + '/'}).promise();
     //map and check for audio file if file has extension .m4a
+    console.log(r.Contents);
     let audioFile = r.Contents.map((item) => {
       if(item.Key.includes(".m4a")){
+        return item.Key;
+      }
+    });
+    //get both audio and video file key
+    let videoFileKey = r.Contents.map((item) => {
+      if(item.Key.includes(".mp4")){
         return item.Key;
       }
     });
@@ -129,6 +136,7 @@ const processFile = async () => {
             data: {
               transcriptionComplete: true,
               diarizerText: json.data[0],
+              videoId: videoFileKey[0],
             },
           });
           console.log(file);
@@ -217,19 +225,19 @@ const runTask = async () => {
 
   try {
     // Get files where transcriptionComplete is false
-    // const files = await prisma.meeting.findMany({
-    //   where: {
-    //     awsKey:{
-    //         not: null,
-    //     }
-    //   },
-    // });
+    const files = await prisma.meeting.findMany({
+      where: {
+        awsKey:{
+            not: null,
+        }
+      },
+    });
 
-    // console.log(files);
+    console.log(files);
 
-    // for (const file of files) {
-      await processFile();
-    // }
+    for (const file of files) {
+      await processFile(file);
+    }
   } catch (err) {
     console.log(err);
   }

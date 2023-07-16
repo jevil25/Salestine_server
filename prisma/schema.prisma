@@ -69,7 +69,6 @@ model meeting {
 
 model file {
   id                    String   @id @default(cuid()) @map("_id")
-  audioId               String
   videoId               String
   timestamp             DateTime @default(now())
   meetingId             String   @unique

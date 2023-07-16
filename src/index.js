@@ -46,13 +46,10 @@ app.get("/", (req, res) => {
 });
 
 ping();
-awsfunc();
 //run the job
 if(process.env.ASR_SERVER === "true"){
-  // job();
-  // file();
-  // console.log("analysis")
   // analysis();
+  awsfunc();
 }
 
 app.listen(port, () => {
