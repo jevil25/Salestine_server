@@ -12,13 +12,22 @@ async function handler(req,res){
             where: { email },
         });
         if(user.role === "SUPERADMIN"){
-            const allRecordings = await prisma.meeting.findMany();
+            const allRecordings = await prisma.meeting.findMany(
+              {
+                include: {
+                  file: true,
+                }
+              }
+            );
             return res.status(200).json({ recordings: allRecordings });
         }
         if(user.role === "ADMIN"){
           const allRecordings = await prisma.meeting.findMany({
             where: {
               companyid: user.companyId,
+            },
+            include: {
+              file: true,
             }
           });
           return res.status(200).json({ recordings: allRecordings });
@@ -26,6 +35,9 @@ async function handler(req,res){
         const allRecordings = await prisma.meeting.findMany({
             where: { 
               meetHostId: user.id,
+            },
+            include: {
+              file: true,
             }
         });
     
