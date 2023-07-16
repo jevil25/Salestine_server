@@ -58,7 +58,7 @@ model meeting {
   meetHostId   String
   meetPassword String
   awsKey       String?
-  duration     Int
+  duration     Int?
   comments     comment[]
   transcript   transcript[]
   User         User?        @relation(fields: [meetHostId], references: [id])
