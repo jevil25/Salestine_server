@@ -201,4 +201,31 @@ router.post("/updateFav", async (req, res) => {
     }
 });
 
+//router to update type
+router.post("/updateType",async (req,res) => {
+    const { id } = req.body;
+    if(!id){
+        return res.status(404).json({ message: "Id not found.",status: false });
+    }
+    //check if folder exists
+    const folder = await prisma.folder.findUnique({
+        where: { id },
+    });
+    if (!folder) {
+        return res.status(404).json({ message: "Folder not found.",status: false });
+    }
+    //update folder
+    const folderUpdate = await prisma.folder.update({
+        where: { id },
+        data: {
+            type: folder.type === "PUBLIC" ? "PRIVATE" : "PUBLIC",
+        }
+    });
+    if (!folderUpdate) {
+        return res.status(404).json({ message: "Folder not updated.",status: false });
+    }
+    //return the folder
+    return res.status(200).json({ folderUpdate,status: true });
+})
+
 module.exports = router;
