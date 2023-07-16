@@ -55,7 +55,12 @@ const processFile = async () => {
       item = item.split("/")[1];
       fs.writeFileSync(`./${item}`, file.Body);
       try {  
-        const data = new FormData();
+        //convert m4a to mp4
+        ffmpeg(`./${item}`).output(`./${item.split(".")[0]}.mp4`).on('end', async () => {
+          console.log("conversion done");
+          //delete m4a file
+          fs.unlinkSync(`./${item}`);
+          const data = new FormData();
         data.append('audio_data', fs.createReadStream(`./${item}`));
         data.append('num_speaker', 7);
     
@@ -199,6 +204,7 @@ const processFile = async () => {
             }
           });
         });
+        }).run();
       } catch (err) {
         console.log(err);
         throw err;
