@@ -60,12 +60,12 @@ const processFile = async (file) => {
       fs.writeFileSync(`./${item}`, file.Body);
       try {  
         //convert m4a to mp4
-        ffmpeg(`./${item}`).output(`./${item.split(".")[0]}.mp4`).on('end', async () => {
+        ffmpeg(`./${item}`).output(`./${item.split(".")[0]}.mp3`).on('end', async () => {
           console.log("conversion done");
           //delete m4a file
           fs.unlinkSync(`./${item}`);
           const data = new FormData();
-        data.append('audio_data', fs.createReadStream(`./${item}`));
+        data.append('audio_data', fs.createReadStream(`./${item.split(".")[0]}.mp3`));
         data.append('num_speaker', 7);
     
         const config = {
@@ -91,7 +91,7 @@ const processFile = async (file) => {
         console.log(response);
     
         if (!response.ok) {
-          fs.unlinkSync(`./${item}`);
+          fs.unlinkSync(`./${item.split(".")[0]}.mp3`);
           throw new Error('Failed to upload the converted file.');
         }
     
@@ -99,7 +99,7 @@ const processFile = async (file) => {
         const json = await response.json();
     
         //delete wav file
-        fs.unlinkSync(`./${item}`);
+        fs.unlinkSync(`./${item.split(".")[0]}.mp3`);
         // if(json.status === false){
         //   return false;
         // }

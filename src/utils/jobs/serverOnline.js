@@ -14,9 +14,7 @@ handler = async () => {
        });
        console.log('Server pinged successfully');
      } else {
-       reject(
-         new Error(`Server ping failed with status code: ${res.statusCode}`)
-       );
+       console.log('Server ping failed');
      }
    });
 
