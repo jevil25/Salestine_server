@@ -126,9 +126,15 @@ const processFile = async (file) => {
               },
             });
           });
-          const file = await prisma.file.update({
+          const file = await prisma.file.upsert({
             where: {
               meetingId: meetingId,
+            },
+            create: {
+              meetingId: meetingId,
+              transcriptionComplete: true,
+              diarizerText: json.data[0],
+              videoId: videoFileKey[0],
             },
             data: {
               transcriptionComplete: true,
@@ -147,13 +153,8 @@ const processFile = async (file) => {
             diar_data: msg,
           }
         }).then((res) => res.json()).then(async (data) => {
-          // console.log(data);
+          console.log(data);
           if(data.status === false){
-            const analy = await prisma.analysis.create({
-              data: {
-                meetingId: meetingId,
-              },
-            });
             return false;
           }
           const analysis = data.data;
@@ -221,11 +222,14 @@ const runTask = async () => {
   console.log('Running cron job...');
 
   try {
-    // Get files where transcriptionComplete is false
+    // check if awskey is not null and file is not processed
     const files = await prisma.meeting.findMany({
       where: {
-        awsKey:{
-            not: null,
+        awsKey: {
+          not: null,
+        },
+        file: {
+          none:{}
         }
       },
     });
