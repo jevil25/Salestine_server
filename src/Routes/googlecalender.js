@@ -10,6 +10,7 @@ async function googleCalender(req,res){
     }
     await handler(email);
     getCalendar(email);
+    return res.send({message: "success"});
   }catch(err){
     console.log(err);
   }
