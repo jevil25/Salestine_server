@@ -65,6 +65,7 @@ model meeting {
   Company      Company?     @relation(fields: [companyid], references: [id])
   file         file[]
   analysis     analysis[]
+  trim         trim[]
 }
 
 model file {
@@ -130,6 +131,17 @@ model folder {
   fileId    String[]
   companyId String
   Company   Company    @relation(fields: [companyId], references: [id])
+}
+
+model trim {
+  id        String   @id @default(cuid()) @map("_id")
+  startTime Int
+  endTime   Int
+  meetingId String
+  videoId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  meeting   meeting  @relation(fields: [meetingId], references: [meetid])
 }
 
 enum Role {

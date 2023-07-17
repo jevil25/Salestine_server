@@ -40,6 +40,7 @@ app.use("/getUserDetailsById",require("./Routes/getUserDetailsById"))
 app.use("/getTeamDetails",require("./Routes/getTeamDetails"));
 app.use("/library",require("./Routes/library"));
 app.use("/getFileDetailsById",require("./Routes/getFileDetailsById"));
+app.use("/trim",require("./Routes/trim"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
