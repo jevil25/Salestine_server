@@ -239,8 +239,10 @@ const runTask = async () => {
     for (const file of files) {
       await processFile(file);
     }
+    runTask();
   } catch (err) {
     console.log(err);
+    runTask();
   }
 };
 
@@ -248,8 +250,8 @@ const awsfunc = () => {
   // Run the task immediately
   runTask();
 
-  // Schedule the task to run every 2hrs
-  cron.schedule('0 */2 * * *', runTask);
+  // // Schedule the task to run every 2hrs
+  // cron.schedule('0 0 */2 * * *', runTask);
 };
 
 module.exports = awsfunc;
