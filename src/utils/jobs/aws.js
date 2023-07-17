@@ -136,11 +136,11 @@ const processFile = async (file) => {
               diarizerText: json.data[0],
               videoId: videoFileKey[0],
             },
-            data: {
-              transcriptionComplete: true,
-              diarizerText: json.data[0],
-              videoId: videoFileKey[0],
-            },
+            update: {
+                transcriptionComplete: true,
+                diarizerText: json.data[0],
+                videoId: videoFileKey[0],
+              },
           });
           console.log(file);
         });

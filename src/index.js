@@ -45,12 +45,11 @@ app.use("/trim",require("./Routes/trim"));
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
-ping();
 //run the job
 if(process.env.ASR_SERVER === "true"){
   // analysis();
   awsfunc();
+  ping();
 }
 
 app.listen(port, () => {
