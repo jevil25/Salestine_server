@@ -248,8 +248,8 @@ const awsfunc = () => {
   // Run the task immediately
   runTask();
 
-  // Schedule the task to run every 120 minutes
-  cron.schedule('*/180 * * * *', runTask);
+  // Schedule the task to run every 2hrs
+  cron.schedule('0 */2 * * *', runTask);
 };
 
 module.exports = awsfunc;
