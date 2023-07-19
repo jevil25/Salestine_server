@@ -12,6 +12,19 @@ let ffprobePath = ffmpegPath.replace('ffmpeg.exe', 'ffprobe.exe');
 ffprobePath = ffprobePath.replace('ffmpeg-installer', 'ffprobe-installer');
 ffmpeg.setFfprobePath(ffprobePath);
 
+async function query(data) {
+  const response = await fetch(
+      "https://api-inference.huggingface.co/models/kabita-choudhary/finetuned-bart-for-conversation-summary",
+      {
+          headers: { Authorization: `Bearer ${process.env.summarization_token}` },
+          method: "POST",
+          body: JSON.stringify(data),
+      }
+  );
+  const result = await response.json();
+  return result;
+}
+
 const convert = async (input, output, rid, accessToken) => {
   try {
     console.log("Fetching video from drive");
@@ -229,11 +242,44 @@ const processFile = async (file) => {
         }
       });
     });
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
-};
+
+    //summarization
+    console.log("Sending data to summarization");
+    const text = await prisma.transcript.findMany({
+      where: {
+          meetingId: meetingId
+      },
+      select: {
+          speaker: true,
+          text: true
+        }
+    });
+
+    //make msg into a string
+    let msg1 = "";
+    for(let i = 0; i < text.length; i++){
+        msg1 += "speaker" + text[i].speaker + ": " + text[i].text + "\n";
+    }
+    query({"inputs": msg1}).then(async (response) => {
+        if(response[0].summary_text){
+            const summary = response[0].summary_text;
+            const file = await prisma.file.update({
+                where: {
+                    meetingId: meetingId
+                },
+                data: {
+                    summary: summary,
+                    summaryComplete: true
+                }
+            });
+            console.log(file);
+        }
+    });
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  };
 
 const runTask = async () => {
   console.log('Running cron job...');
