@@ -31,7 +31,7 @@ model User {
   company            Company?  @relation(fields: [companyId], references: [id])
   meeting            meeting[]
   folder             folder[]
-  crmapi_ctr         DateTime  @default(now())
+  crmapi_ctr         String    @default("")
 }
 
 model Company {
