@@ -210,6 +210,39 @@ const processFile = async (file) => {
             }
           });
         });
+
+        //summarization
+        console.log("Sending data to summarization");
+        const text = await prisma.transcript.findMany({
+          where: {
+              meetingId: meetingId
+          },
+          select: {
+              speaker: true,
+              text: true
+            }
+        });
+
+        //make msg into a string
+        let msg1 = "";
+        for(let i = 0; i < text.length; i++){
+            msg1 += "speaker" + text[i].speaker + ": " + text[i].text + "\n";
+        }
+        query({"inputs": msg1}).then(async (response) => {
+            if(response[0].summary_text){
+                const summary = response[0].summary_text;
+                const file = await prisma.file.update({
+                    where: {
+                        meetingId: meetingId
+                    },
+                    data: {
+                        summary: summary,
+                        summaryComplete: true
+                    }
+                });
+                console.log(file);
+            }
+        });
         }).run();
       } catch (err) {
         console.log(err);

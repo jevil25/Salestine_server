@@ -77,7 +77,9 @@ model file {
   meetingId             String   @unique
   transcriptionComplete Boolean? @default(false)
   diarizerText          String?
+  summary               String?  @default("")
   analysisComplete      Boolean? @default(false)
+  summaryComplete       Boolean? @default(false)
   meeting               meeting  @relation(fields: [meetingId], references: [meetid])
   libraryId             String?
   folder                folder[] @relation(fields: [folderId], references: [id])
