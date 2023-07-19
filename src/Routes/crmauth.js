@@ -21,7 +21,10 @@ async function handler(req, res) {
         },
       }).then((res) => res.json());
       res.status(200).json({ data: resp });
-    } else if (flag == "listopp") {
+    }
+
+    //list opportunities
+    else if (flag == "listopp") {
       if (req.method != "POST") {
         res.status(400).json({ message: "Invalid method,only post allowed" });
       }
@@ -31,6 +34,7 @@ async function handler(req, res) {
       const user = await prisma.user.findUnique({
         where: { email },
       });
+      // console.log(user)
       if (user.crmapi_ctr != today) {
         const data = await fetch(
           "https://unify.apideck.com/crm/opportunities?raw=true",
@@ -47,19 +51,43 @@ async function handler(req, res) {
             .status(400)
             .json({ success: false, message: "Integrate your CRM" });
         }
-        else {
+        if (user.crmapi_ctr == "") {
+          const user = await prisma.user.update({
+            where: { email },
+            data: { crmapi_ctr: today },
+          });
+          const deal = await prisma.deals.create({
+            data: {
+              userId: user.id,
+              data: data,
+            },
+          });
+          res.status(200).json({message: "success", data: data, user, deal });
+        } else {
           // const owner_name = await fetch(`https://unify.apideck.com/crm/users/${owner_id}`)
           const user = await prisma.user.update({
             where: { email },
             data: { crmapi_ctr: today },
           });
-          res.status(200).json({ message: "success", data: data, user });
+          const deal = await prisma.deals.update({
+            where: { userId: user.id },
+            data: { data: data },
+          });
+          res.status(200).json({ message: "success", data: data, user, deal });
         }
       } else {
-        console.log("opportunities have already been fetched today")
+        // console.log("opportunities have already been fetched today");
+        const data = await prisma.deals.findMany({
+          where: { userId: user.id },
+        });
+        // console.log(user.id);
+        res.status(200).json({
+          message: "API already fetched today",
+          data: data,
+          userId: user.id,
+        });
       }
-    } 
-    else {
+    } else {
       res.status(400).json({ error: "Invalid flag" });
     }
   } catch (err) {

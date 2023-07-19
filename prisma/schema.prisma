@@ -32,6 +32,7 @@ model User {
   meeting            meeting[]
   folder             folder[]
   crmapi_ctr         String    @default("")
+  deals              deals[]
 }
 
 model Company {
@@ -143,6 +144,13 @@ model trim {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   meeting   meeting  @relation(fields: [meetingId], references: [meetid])
+}
+
+model deals {
+  id        String    @id @default(cuid()) @map("_id")
+  userId    String  
+  data      Json
+  User      User   @relation(fields: [userId], references: [id])
 }
 
 enum Role {
