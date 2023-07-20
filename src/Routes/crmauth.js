@@ -62,18 +62,18 @@ async function handler(req, res) {
               data: data,
             },
           });
-          res.status(200).json({message: "success", data: data, user, deal });
+          res.status(200).json({message: "success", data: data,userId: user.id, user, deal });
         } else {
           // const owner_name = await fetch(`https://unify.apideck.com/crm/users/${owner_id}`)
           const user = await prisma.user.update({
             where: { email },
             data: { crmapi_ctr: today },
           });
-          const deal = await prisma.deals.update({
+          const deal = await prisma.deals.updateMany({
             where: { userId: user.id },
             data: { data: data },
           });
-          res.status(200).json({ message: "success", data: data, user, deal });
+          res.status(200).json({ message: "success", data: data,userId: user.id, user, deal });
         }
       } else {
         // console.log("opportunities have already been fetched today");
