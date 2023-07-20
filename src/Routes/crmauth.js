@@ -69,7 +69,7 @@ async function handler(req, res) {
             where: { email },
             data: { crmapi_ctr: today },
           });
-          const deal = await prisma.deals.update({
+          const deal = await prisma.deals.updateMany({
             where: { userId: user.id },
             data: { data: data },
           });
