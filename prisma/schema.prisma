@@ -48,6 +48,7 @@ model Company {
   users      User[]
   meeting    meeting[]
   folder     folder[]
+  tracker    tracker[]
 }
 
 model meeting {
@@ -77,8 +78,10 @@ model file {
   transcriptionComplete Boolean? @default(false)
   diarizerText          String?
   summary               String?  @default("")
+  trackerData           Json?
   analysisComplete      Boolean? @default(false)
   summaryComplete       Boolean? @default(false)
+  trackerComplete       Boolean? @default(false)
   meeting               meeting  @relation(fields: [meetingId], references: [meetid])
   libraryId             String?
   folder                folder[] @relation(fields: [folderId], references: [id])
@@ -145,6 +148,15 @@ model trim {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   meeting   meeting  @relation(fields: [meetingId], references: [meetid])
+}
+
+model tracker {
+  id        String   @id @default(cuid()) @map("_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  trackers  String[]
+  companyId String   @unique
+  Company   Company  @relation(fields: [companyId], references: [id])
 }
 
 enum Role {

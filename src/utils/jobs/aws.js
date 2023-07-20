@@ -243,10 +243,86 @@ const processFile = async (file) => {
                 console.log(file);
             }
         });
+        //tracker
+        async function queryTracker(data) {
+          const response = await fetch(
+              "https://api-inference.huggingface.co/models/facebook/bart-large-mnli",
+              {
+                  headers: { Authorization: `Bearer ${process.env.summarization_token}` },
+                  method: "POST",
+                  body: JSON.stringify(data),
+              }
+          );
+          const result = await response.json();
+          return result;
+      }
+      const text1 = await prisma.transcript.findMany({
+          where: {
+              meetingId: meetingId,
+          },
+          include: {
+              meeting: {
+                  select: {
+                      companyid: true,
+                  }
+              }
+          }
+        });
+      //make msg into a string
+      let onlyText = "";
+      for(let i = 0; i < text1.length; i++){
+          onlyText += text1[i].text + "\n";
+      }
+      //get tracker name from company id
+      const tracker = await prisma.tracker.findUnique({
+          where:{
+              companyId: text1[0].meeting.companyid,
+          }
+      });
+      let labels = [];
+      if(!tracker || tracker.trackers.length === 0){
+          labels = ["Revisit","Positive_Feedback","Pain_Points","Timeline","Lead_Source","Budget","Upsell_Opportunity","Virtual_Demonstration","Voicemail","Pricing"] //terms of zoom meets
+      }else{
+          labels = tracker.trackers;
+      }
+      queryTracker({"inputs": onlyText, "parameters": {"candidate_labels": labels}}).then(async (response) => {
+          // response = JSON.parse(response[0]);
+          // console.log(response);
+          if(response.error){
+            return;
+          }
+          //get labels
+          const labels = response.labels;
+          //get scores
+          const scores = response.scores;
+          //calculate the total score and convert scores to percentage
+          let totalScore = scores.reduce((a, b) => a + b, 0);
+          for(let i = 0; i < scores.length; i++){
+              scores[i] = (scores[i]/totalScore)*100;
+          }
+          //create a json object with labels and scores
+          let responseJson = {};
+          for(let i = 0; i < labels.length; i++){
+              responseJson[labels[i]] = scores[i];
+          }
+          // console.log(responseJson);
+          //store in file
+          const file = await prisma.file.update({
+              where: {
+                  meetingId: meetingId
+              },
+              data: {
+                  trackerData: responseJson,
+                  trackerComplete: true
+              }
+          });
+          // console.log(file);
+        });
+        runTask();
         }).run();
       } catch (err) {
         console.log(err);
-        throw err;
+        runTask();
       }
     });
 };
@@ -268,21 +344,23 @@ const runTask = async () => {
     });
 
     console.log(files);
+    if (files.length === 0) {
+      console.log('No files to process');
+      setTimeout(runTask, 1000 * 60 * 5);
+    }
 
     for (const file of files) {
       await processFile(file);
     }
   } catch (err) {
     console.log(err);
+    runTask();
   }
 };
 
 const awsfunc = () => {
   // Run the task immediately
   runTask();
-
-  // // Schedule the task to run every 2hrs
-  cron.schedule('0 0 */2 * * *', runTask);
 };
 
 module.exports = awsfunc;

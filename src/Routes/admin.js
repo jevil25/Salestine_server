@@ -167,4 +167,28 @@ router.post("/edituser", async (req, res) => {
     return res.status(200).json(user);
 });
 
+router.post("/addTracker", async (req, res) => {
+    const { company_id, tracker_name } = req.body;
+    if(!company_id || !tracker_name){
+        return res.status(404).json({ message: "Company id or tracker name not found.",status: false });
+    }
+    //create a tracker
+    const tracker = await prisma.tracker.upsert({
+        where:{
+            companyId: company_id,
+        },
+        update:{
+            trackerName: tracker_name,
+        },
+        create:{
+            trackerName: tracker_name,
+            companyId: company_id,
+        }
+    });
+    if (!tracker) {
+        return res.status(404).json({ message: "Tracker not created.",status: false });
+    }
+    //return the tracker
+    return res.status(200).json({tracker,status: true});
+});
 module.exports = router;
