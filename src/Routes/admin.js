@@ -168,27 +168,74 @@ router.post("/edituser", async (req, res) => {
 });
 
 router.post("/addTracker", async (req, res) => {
-    const { company_id, tracker_name } = req.body;
-    if(!company_id || !tracker_name){
-        return res.status(404).json({ message: "Company id or tracker name not found.",status: false });
+    const { email, trackerName } = req.body;
+    console.log(req.body);
+    if(!email || !trackerName){
+        return res.status(404).json({ message: "email or tracker name not found.",status: false });
     }
+    //get user id from email
+    const user = await prisma.user.findUnique({
+        where: { email },
+    });
+    if (!user) {
+        console.log("User not found.");
+        return res.status(404).json({ message: "User not found.",status: false });
+    }
+    if(user.role !== "ADMIN"){
+        console.log("User is not an admin.");
+        return res.status(404).json({ message: "User is not an admin.",status: false });
+    }
+    //get company of the admin
+    const companyId = user.companyId;
     //create a tracker
     const tracker = await prisma.tracker.upsert({
         where:{
-            companyId: company_id,
+            companyId: companyId,
         },
         update:{
-            trackerName: tracker_name,
+            trackers: trackerName,
         },
         create:{
-            trackerName: tracker_name,
-            companyId: company_id,
+            trackers: trackerName,
+            companyId: companyId,
         }
     });
+    console.log(tracker);
     if (!tracker) {
         return res.status(404).json({ message: "Tracker not created.",status: false });
     }
     //return the tracker
     return res.status(200).json({tracker,status: true});
 });
+
+router.post("/getTracker", async (req, res) => {
+    const { email } = req.body;
+    if(!email){
+        return res.status(404).json({ message: "Email not found.",status: false });
+    }
+    //get user id from email
+    const user = await prisma.user.findUnique({
+        where: { email },
+    });
+    if (!user) {
+        return res.status(404).json({ message: "User not found.",status: false });
+    }
+    if(user.role !== "ADMIN"){
+        return res.status(404).json({ message: "User is not an admin.",status: false });
+    }
+    //get company of the admin
+    const companyId = user.companyId;
+    //get tracker of the company
+    const tracker = await prisma.tracker.findUnique({
+        where: {
+            companyId: companyId,
+        },
+    });
+    if (!tracker) {
+        return res.status(404).json({ message: "Tracker not found.",status: false });
+    }
+    //return the tracker
+    return res.status(200).json({tracker,status: true});
+});
+
 module.exports = router;
