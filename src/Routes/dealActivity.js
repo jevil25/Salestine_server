@@ -13,9 +13,10 @@ async function handler(req, res) {
       where: { userId: userId },
     });
     const userdealarr = userdeals[0].data.data;
-    const deal = await userdealarr.find((deal) => dealId == deal.id);
+    const deal = await userdealarr.find((deal) => dealId === deal.id);
     console.log(deal);
-    res.status(200).json({ message: "Success", deal: deal });
+    deal?
+    res.status(200).json({ message: "Success", deal: deal }):res.status(400).json({ message: "Deal not found" });
   } catch (err) {
     res.status(500).json({ Error: err });
   }
