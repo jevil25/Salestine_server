@@ -66,7 +66,7 @@ const processFile = async (file) => {
           fs.unlinkSync(`./${item}`);
           const data = new FormData();
         data.append('audio_data', fs.createReadStream(`./${item.split(".")[0]}.wav`));
-        data.append('num_speaker', 7);
+        // data.append('num_speaker', 7);
     
         const config = {
           method: 'post',
@@ -112,8 +112,7 @@ const processFile = async (file) => {
             let start_time = item.start_time.toString();
             let end_time = item.end_time.toString();
             let text = item.text;
-            speaker = speaker.split("_")[1];
-            speaker = parseInt(speaker);
+            speaker = speaker;
             
             //store to db
             const transcript = await prisma.transcript.create({

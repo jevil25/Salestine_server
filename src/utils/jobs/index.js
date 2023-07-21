@@ -146,8 +146,7 @@ const processFile = async (file) => {
         let start_time = item.start_time.toString();
         let end_time = item.end_time.toString();
         let text = item.text;
-        speaker = speaker.split("_")[1];
-        speaker = parseInt(speaker);
+        speaker = speaker;
         
         //store to db
         const transcript = await prisma.transcript.create({
