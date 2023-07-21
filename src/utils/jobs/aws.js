@@ -91,7 +91,7 @@ const processFile = async (file) => {
         }
     
         console.log("Waiting for response from ASR");
-        const json = await response.data.json();
+        const json = await response.data;
     
         //delete wav file
         fs.unlinkSync(`./${item.split(".")[0]}.wav`);
