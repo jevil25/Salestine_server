@@ -80,14 +80,8 @@ const processFile = async (file) => {
           };
     
         console.log("Sending data to ASR");
-          const response = await fetch(config.url, {
-            follow: "follow",
-            method: config.method,
-            headers: {
-              ...data.getHeaders(),
-            },
-            body: data,
-          });
+          //use axios
+        const response = await axios(config);
     
         console.log(response);
     
