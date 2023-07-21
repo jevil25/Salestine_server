@@ -85,7 +85,7 @@ const processFile = async (file) => {
     
         console.log(response.data);
     
-        if (!response.status!==200) {
+        if (response.status!==200) {
           fs.unlinkSync(`./${item.split(".")[0]}.wav`);
           throw new Error('Failed to upload the converted file.');
         }
