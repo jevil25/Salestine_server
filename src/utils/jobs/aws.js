@@ -83,15 +83,15 @@ const processFile = async (file) => {
           //use axios
         const response = await axios(config);
     
-        console.log(response);
+        console.log(response.data);
     
-        if (!response.ok) {
+        if (!response.status!==200) {
           fs.unlinkSync(`./${item.split(".")[0]}.wav`);
           throw new Error('Failed to upload the converted file.');
         }
     
         console.log("Waiting for response from ASR");
-        const json = await response.json();
+        const json = await response.data.json();
     
         //delete wav file
         fs.unlinkSync(`./${item.split(".")[0]}.wav`);
