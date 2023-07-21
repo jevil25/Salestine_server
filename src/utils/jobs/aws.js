@@ -66,27 +66,28 @@ const processFile = async (file) => {
           fs.unlinkSync(`./${item}`);
           const data = new FormData();
         data.append('audio_data', fs.createReadStream(`./${item.split(".")[0]}.wav`));
-        // data.append('num_speaker', 7);
-    
-        const config = {
-          method: 'post',
-          maxBodyLength: Infinity,
-          url: process.env.ASR_URL,
-          headers: {
-            ...data.getHeaders(),
-          },
-          data: data,
-        };
+        data.append('num_speaker', 1);
+          
+        try{
+          const config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: process.env.ASR_URL,
+            headers: {
+              ...data.getHeaders(),
+            },
+            data: data,
+          };
     
         console.log("Sending data to ASR");
-    
-        const response = await fetch(config.url, {
-          method: config.method,
-          headers: {
-            ...data.getHeaders(),
-          },
-          body: data,
-        });
+          const response = await fetch(config.url, {
+            follow: "follow",
+            method: config.method,
+            headers: {
+              ...data.getHeaders(),
+            },
+            body: data,
+          });
     
         console.log(response);
     
@@ -318,7 +319,11 @@ const processFile = async (file) => {
           // console.log(file);
         });
         runTask();
-        }).run();
+        }catch(err){
+          console.log(err);
+          runTask();
+        }}
+      ).run();
       } catch (err) {
         console.log(err);
         runTask();
