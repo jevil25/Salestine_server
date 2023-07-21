@@ -44,6 +44,7 @@ app.use("/getFileDetailsById",require("./Routes/getFileDetailsById"));
 app.use("/trim",require("./Routes/trim"));
 app.use("/summarization",require("./Routes/summarization"));
 app.use("/trackers",require("./Routes/trackers"));
+app.use("/dealActivity",require("./Routes/dealActivity"))
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
