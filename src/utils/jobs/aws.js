@@ -44,7 +44,13 @@ const processFile = async (file) => {
         return item;
       }
     });
+    videoFileKey = videoFileKey.filter((item) => {
+      if(item !== undefined){
+        return item;
+      }
+    });
     console.log(audioFile);
+    console.log(videoFileKey);
     //get the file and store it in local
     audioFile.map(async (item) => {
       const params = {
@@ -125,10 +131,14 @@ const processFile = async (file) => {
               meetingId: meetingId,
             },
             create: {
-              meetingId: meetingId.toString(),
               transcriptionComplete: true,
               diarizerText: json.data[0],
               videoId: videoFileKey[0],
+              meeting: {
+                connect: {
+                  meetid: meetingId,
+                }
+              }
             },
             update: {
                 transcriptionComplete: true,
