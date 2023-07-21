@@ -102,13 +102,12 @@ const processFile = async (file) => {
         console.log(json);
         json.data.map(async (item) => {
           item = JSON.parse(item);
+          console.log(item);
           item.map(async (item) => {
             let speaker = item.speaker;
             let start_time = item.start_time.toString();
             let end_time = item.end_time.toString();
             let text = item.text;
-            speaker = speaker;
-            
             //store to db
             const transcript = await prisma.transcript.create({
               data: {
@@ -119,13 +118,14 @@ const processFile = async (file) => {
                 meetingId: meetingId,
               },
             });
+            console.log(transcript);
           });
           const file = await prisma.file.upsert({
             where: {
               meetingId: meetingId,
             },
             create: {
-              meetingId: meetingId,
+              meetingId: meetingId.toString(),
               transcriptionComplete: true,
               diarizerText: json.data[0],
               videoId: videoFileKey[0],
