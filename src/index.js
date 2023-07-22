@@ -51,7 +51,7 @@ app.get("/", (req, res) => {
 });
 //run the job
 if(process.env.ASR_SERVER === "true"){
-  // analysis();
+  analysis();
   awsfunc();
   ping();
   summary();

@@ -369,6 +369,11 @@ const runTask = async () => {
 const awsfunc = () => {
   // Run the task immediately
   runTask();
+
+  //run every 2 hrs
+  cron.schedule('0 */2 * * *', () => {
+    runTask();
+  });
 };
 
 module.exports = awsfunc;

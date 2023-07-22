@@ -57,7 +57,7 @@ model Company {
 model meeting {
   id           String       @id @default(cuid()) @map("_id")
   topic        String       @default("")
-  companyid    String
+  companyid    String?
   startTime    String
   meetid       String       @unique
   meetHostId   String
@@ -106,7 +106,7 @@ model transcript {
   timestamp DateTime @default(now())
   startTime String
   endTime   String
-  speaker   String?
+  speaker   String
   meetingId String
   meeting   meeting  @relation(fields: [meetingId], references: [meetid])
   User      User?    @relation(fields: [userId], references: [id])
