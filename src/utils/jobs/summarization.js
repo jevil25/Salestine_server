@@ -52,9 +52,21 @@ const summarization = async () => {
             for(let i = 0; i < text.length; i++){
                 msg += "speaker" + text[i].speaker + ": " + text[i].text + "\n";
             }
+            if(msg === ""){
+                const file = await prisma.file.update({
+                    where: {
+                        meetingId: files[i].meetingId
+                    },
+                    data: {
+                        summaryComplete: true,
+                        summary: ""
+                    }
+                });
+                return;
+            }
             //send to summarization
             query({"inputs": msg}).then(async (response) => {
-                if(response[0].summary_text){
+                if(response !== undefined){
                     const summary = response[0].summary_text;
                     const file = await prisma.file.update({
                         where: {
@@ -97,6 +109,19 @@ const summarization = async () => {
             onlyText += text1[i].text + "\n";
         }
         console.log(onlyText);
+        if(onlyText === ""){
+            const file = await prisma.file.update({
+                where: {
+                    meetingId: files1[i].meetingId
+                },
+                data: {
+                    trackerComplete: true,
+                    summaryComplete: true,
+                    trackerData: {}
+                }
+            });
+            return;
+        }
         //get tracker name from company id
         const tracker = await prisma.tracker.findUnique({
             where:{

@@ -111,6 +111,9 @@ const processFile = async (file) => {
           console.log(item);
           item.map(async (item) => {
             let speaker = item.speaker;
+            if(!speaker.startsWith("speaker")){
+              speaker = speaker.split(".pth")[0];
+            }
             let start_time = item.start_time.toString();
             let end_time = item.end_time.toString();
             let text = item.text;
