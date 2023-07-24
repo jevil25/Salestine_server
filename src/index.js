@@ -45,16 +45,17 @@ app.use("/trim",require("./Routes/trim"));
 app.use("/summarization",require("./Routes/summarization"));
 app.use("/trackers",require("./Routes/trackers"));
 app.use("/dealActivity",require("./Routes/dealActivity"))
+app.use("/getCoaching",require("./Routes/coaching"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 //run the job
 if(process.env.ASR_SERVER === "true"){
-  analysis();
-  awsfunc();
+  // analysis();
+  // awsfunc();
   ping();
-  summary();
+  // summary();
 }
 
 app.listen(port, () => {

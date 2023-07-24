@@ -35,6 +35,7 @@ model User {
   deals              deals[]
   transcript         transcript[]
   analysis           analysis[]
+  feedback           feedback[]
 }
 
 model Company {
@@ -171,6 +172,15 @@ model tracker {
   trackers  String[]
   companyId String   @unique
   Company   Company  @relation(fields: [companyId], references: [id])
+}
+
+model feedback {
+  id        String   @id @default(cuid()) @map("_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  feedback  String
+  userId    String
+  User      User     @relation(fields: [userId], references: [id])
 }
 
 enum Role {

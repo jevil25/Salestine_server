@@ -59,7 +59,9 @@ const summarization = async () => {
                     },
                     data: {
                         summaryComplete: true,
-                        summary: ""
+                        summary: "",
+                        trackerComplete: true,
+                        trackerData: {}
                     }
                 });
                 return;
