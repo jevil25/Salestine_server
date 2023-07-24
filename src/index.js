@@ -46,6 +46,7 @@ app.use("/summarization",require("./Routes/summarization"));
 app.use("/trackers",require("./Routes/trackers"));
 app.use("/dealActivity",require("./Routes/dealActivity"))
 app.use("/getCoaching",require("./Routes/coaching"));
+app.use("/getIndividualDetails",require("./Routes/getIndividualDetails"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
