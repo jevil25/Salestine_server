@@ -22,8 +22,10 @@ async function handler(req, res) {
   let deal_users = await prisma.deals.findMany({
     where: { userId:userId },
   });
+  let meme = deal_users.id
+  console.log(meme)
   if (deal_users) {
-    res.status(200).json({ status: 200, deals: deal_users });
+    res.status(200).json({ status: 200, deals: meme});
   } else {
     res.status(400).json({ status: 400 });
   }
