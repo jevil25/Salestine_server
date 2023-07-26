@@ -28,7 +28,7 @@ const processFile = async (file) => {
     //map and check for audio file if file has extension .m4a
     console.log(r.Contents);
     let audioFile = r.Contents.map((item) => {
-      if(item.Key.includes(".m4a")){
+      if(item.Key.includes(".m4a") || item.Key.includes(".mp3")){
         return item.Key;
       }
     });
