@@ -48,6 +48,7 @@ app.use("/dealActivity",require("./Routes/dealActivity"))
 app.use("/getCoaching",require("./Routes/coaching"));
 app.use("/getIndividualDetails",require("./Routes/getIndividualDetails"));
 app.use("/uploadCall",upload.single("file"),require("./Routes/uploadCall"));
+app.use("/getCrmUser",require("./Routes/getCrmUser"))
 app.use("/deleteMeet",require("./Routes/deleteMeet"));
 
 app.get("/", (req, res) => {
