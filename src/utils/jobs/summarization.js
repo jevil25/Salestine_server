@@ -68,6 +68,7 @@ const summarization = async () => {
             }
             //send to summarization
             query({"inputs": msg}).then(async (response) => {
+                console.log(response);
                 if(response !== undefined){
                     const summary = response[0].summary_text;
                     const file = await prisma.file.update({
@@ -79,7 +80,7 @@ const summarization = async () => {
                             summaryComplete: true
                         }
                     });
-                    console.log(file);
+                    // console.log(file);
                 }
             }
         );
@@ -91,7 +92,7 @@ const summarization = async () => {
             trackerComplete: false
         },
     });
-    console.log(files1);
+    // console.log("tracher",files1);
     for(let i = 0; i < files1.length; i++){
         const text1 = await prisma.transcript.findMany({
             where: {
@@ -110,7 +111,7 @@ const summarization = async () => {
         for(let i = 0; i < text1.length; i++){
             onlyText += text1[i].text + "\n";
         }
-        console.log(onlyText);
+        // console.log(onlyText);
         if(onlyText === ""){
             const file = await prisma.file.update({
                 where: {
@@ -138,7 +139,7 @@ const summarization = async () => {
         }
         queryTracker({"inputs": onlyText, "parameters": {"candidate_labels": labels}}).then(async (response) => {
             // response = JSON.parse(response[0]);
-            // console.log(response);
+            console.log(response);
             if(response.error){
                 return;
             }

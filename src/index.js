@@ -48,16 +48,17 @@ app.use("/dealActivity",require("./Routes/dealActivity"))
 app.use("/getCoaching",require("./Routes/coaching"));
 app.use("/getIndividualDetails",require("./Routes/getIndividualDetails"));
 app.use("/uploadCall",upload.single("file"),require("./Routes/uploadCall"));
+app.use("/deleteMeet",require("./Routes/deleteMeet"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 //run the job
 if(process.env.ASR_SERVER === "true"){
-  // analysis();
-  // awsfunc();
+  analysis();
+  awsfunc();
   ping();
-  // summary();
+  summary();
 }
 
 app.listen(port, () => {
