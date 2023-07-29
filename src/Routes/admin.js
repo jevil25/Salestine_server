@@ -181,10 +181,6 @@ router.post("/addTracker", async (req, res) => {
         console.log("User not found.");
         return res.status(404).json({ message: "User not found.",status: false });
     }
-    if(user.role !== "ADMIN"){
-        console.log("User is not an admin.");
-        return res.status(404).json({ message: "User is not an admin.",status: false });
-    }
     //get company of the admin
     const companyId = user.companyId;
     //create a tracker
@@ -219,9 +215,6 @@ router.post("/getTracker", async (req, res) => {
     });
     if (!user) {
         return res.status(404).json({ message: "User not found.",status: false });
-    }
-    if(user.role !== "ADMIN"){
-        return res.status(404).json({ message: "User is not an admin.",status: false });
     }
     //get company of the admin
     const companyId = user.companyId;

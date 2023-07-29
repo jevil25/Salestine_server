@@ -72,6 +72,9 @@ model meeting {
   file         file[]
   analysis     analysis[]
   trim         trim[]
+  dealId       String?
+  deal         deals?       @relation(fields: [dealId], references: [id])
+  participant  Role[]
 }
 
 model file {
@@ -159,10 +162,11 @@ model trim {
 }
 
 model deals {
-  id     String @id @default(cuid()) @map("_id")
-  userId String
-  data   Json
-  User   User   @relation(fields: [userId], references: [id])
+  id      String    @id @default(cuid()) @map("_id")
+  userId  String
+  data    Json
+  User    User      @relation(fields: [userId], references: [id])
+  meeting meeting[]
 }
 
 model tracker {
