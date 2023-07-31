@@ -345,16 +345,28 @@ const runTask = async () => {
     // check if awskey is not null and file is not processed
     const files = await prisma.meeting.findMany({
       where: {
-        awsKey: {
-          not: null,
+        OR: [{
+          awsKey: {
+            not: null,
+          },
+          file: {
+            none:{}
+          }
         },
-        file: {
-          none:{}
+        {
+          awsKey: {
+            not: null,
+          },
+          file: {
+            some:{
+              transcriptionComplete: false,
+            }
         }
-      },
-    });
+      }]
+    }
+  });
 
-    console.log(files);
+    console.log("aws: ",files);
     if (files.length === 0) {
       console.log('No files to process');
       setTimeout(runTask, 1000 * 60 * 5);

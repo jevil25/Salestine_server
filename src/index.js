@@ -12,6 +12,7 @@ const file = require("./utils/jobs/getFiles");
 const analysis = require("./utils/jobs/analysis");
 const awsfunc = require('./utils/jobs/aws');
 const summary = require('./utils/jobs/summarization');
+const updateVideofunc = require("./utils/jobs/updateVideo");
 
 app.use(cors());
 
@@ -60,6 +61,7 @@ if(process.env.ASR_SERVER === "true"){
   awsfunc();
   ping();
   summary();
+  updateVideofunc();
 }
 
 app.listen(port, () => {
