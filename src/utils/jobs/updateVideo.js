@@ -108,10 +108,10 @@ const updateVideofunc = () => {
   // Run the task immediately
   runTask();
 
-  //run every 2 hrs
-  cron.schedule('0 * */1 * *', () => {
+  //run every 1 min
+  cron.schedule('*/1 * * * *', () => {
     runTask();
-  });
+  })
 };
 
 module.exports = updateVideofunc;
