@@ -24,7 +24,7 @@ async function handler(req, res) {
     }
 
     //list opportunities
-    else if (flag == "listopp") {
+    else if (flag == "listopp"){
       if (req.method != "POST") {
         res.status(400).json({ message: "Invalid method,only post allowed" });
       }

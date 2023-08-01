@@ -42,7 +42,6 @@ async function handler(req,res){
         });
     
         // Do something with the "allRecordings" variable
-        console.log("yooo")
         console.log(allRecordings);
     
         // Return a response
