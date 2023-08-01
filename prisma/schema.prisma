@@ -75,6 +75,7 @@ model meeting {
   dealId       String?
   deal         deals?       @relation(fields: [dealId], references: [id])
   participant  Role[]
+  Member       member[]
 }
 
 model file {
@@ -185,6 +186,16 @@ model feedback {
   feedback  String
   userId    String
   User      User     @relation(fields: [userId], references: [id])
+}
+
+model member {
+  id        String   @id @default(cuid()) @map("_id")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  role      String
+  meetId    String
+  meeting   meeting  @relation(fields: [meetId], references: [meetid])
 }
 
 enum Role {

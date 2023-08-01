@@ -52,6 +52,7 @@ app.use("/uploadCall",upload.single("file"),require("./Routes/uploadCall"));
 app.use("/getCrmUser",require("./Routes/getCrmUser"))
 app.use("/deleteMeet",require("./Routes/deleteMeet"));
 app.use("/meetSelect",require("./Routes/meetSelect"));
+app.use("/addMeetMember",require("./Routes/addMeetMember"));
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
