@@ -1,7 +1,7 @@
 const prisma = require("../utils/db/prisma");
 
 async function handler(req, res) {
-//   try {
+  try {
     const { email, meetId, dealId } = req.body;
     if (!email && !meetId && !dealId) {
       res.status(400).json({ Error: "Missing information" });
@@ -20,7 +20,8 @@ async function handler(req, res) {
     if(!data){
         res.status(400).json({Error:"Deals not found"})
     }
-    const deal_arr = await data[0].data;
+    const deal_arr = await data[0].data.data;
+    // res.status(200).json({deal_arr})
     console.log(deal_arr)
     const deal = deal_arr.find((obj)=>obj.id==dealId)
     const dealIndex = deal_arr.findIndex((obj)=>obj.id == dealId)
@@ -45,9 +46,9 @@ async function handler(req, res) {
     })
 
     res.status(200).json({Success:true,data,deal_update})
-//   } catch (err) {
-//     res.status(400).json({ Error: err });
-//   }
+  } catch (err) {
+    res.status(400).json({ Error: err });
+  }
 }
 
 module.exports = handler;
