@@ -3,7 +3,8 @@ const prisma = require("../utils/db/prisma");
 async function handler(req, res) {
   try {
     const { email, meetId, dealId } = req.body;
-    if (!email && !meetId && !dealId) {
+    console.log(req.body);
+    if (!email || !meetId || !dealId) {
       res.status(400).json({ Error: "Missing information" });
     }
 

@@ -51,6 +51,11 @@ const processFile = async (file) => {
     });
     console.log(audioFile);
     console.log(videoFileKey);
+    //check if video file is present
+    if(videoFileKey.length === 0){
+      console.log("Video file not present");
+      return;
+    }
     //update file schema with audio and video keys
     const file1 = await prisma.file.upsert({
         where: {

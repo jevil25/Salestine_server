@@ -26,7 +26,7 @@ const processFile = async (file) => {
   const s3 = new aws.S3();
     let r = await s3.listObjects({Bucket: process.env.BUCKET,Prefix: awsKey + '/'}).promise();
     //map and check for audio file if file has extension .m4a
-    console.log(r.Contents);
+    // console.log(r.Contents);
     let audioFile = r.Contents.map((item) => {
       if(item.Key.includes(".m4a") || item.Key.includes(".mp3")){
         return item.Key;
@@ -49,8 +49,8 @@ const processFile = async (file) => {
         return item;
       }
     });
-    console.log(audioFile);
-    console.log(videoFileKey);
+    // console.log(audioFile);
+    // console.log(videoFileKey);
     //get the file and store it in local
     audioFile.map(async (item) => {
       const params = {
@@ -59,7 +59,7 @@ const processFile = async (file) => {
       };
       console.log("downloading");
       const file = await s3.getObject(params).promise();
-      console.log(file);
+      // console.log(file);
       console.log("done");
       //store the body in local using fs
       item = item.split("/")[1];
@@ -366,7 +366,7 @@ const runTask = async () => {
     }
   });
 
-    console.log("aws: ",files);
+    // console.log("aws: ",files);
     if (files.length === 0) {
       console.log('No files to process');
       setTimeout(runTask, 1000 * 60 * 5);
