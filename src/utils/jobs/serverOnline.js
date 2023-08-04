@@ -3,7 +3,7 @@ var cron = require('node-cron');
 
 handler = async () => {
  const url = process.env.SERVER_URL;
- console.log(url);
+//  console.log(url);
 
  return new Promise((resolve, reject) => {
    const req = https.get(url, (res) => {
@@ -12,7 +12,7 @@ handler = async () => {
          statusCode: 200,
          body: 'Server pinged successfully',
        });
-       console.log('Server pinged successfully');
+      //  console.log('Server pinged successfully');
      } else {
        console.log('Server ping failed');
      }

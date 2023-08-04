@@ -36,7 +36,7 @@ const summarization = async () => {
             summaryComplete: false
         },
     });
-    console.log("summary file",files);
+    // console.log("summary file",files);
     let msg = "";
     for(let i = 0; i < files.length; i++){
         const text = await prisma.transcript.findMany({
@@ -68,7 +68,7 @@ const summarization = async () => {
             }
             //send to summarization
             query({"inputs": msg}).then(async (response) => {
-                console.log(response);
+                // console.log(response);
                 if(response !== undefined){
                     const summary = response[0].summary_text;
                     const file = await prisma.file.update({
@@ -139,7 +139,7 @@ const summarization = async () => {
         }
         queryTracker({"inputs": onlyText, "parameters": {"candidate_labels": labels}}).then(async (response) => {
             // response = JSON.parse(response[0]);
-            console.log(response);
+            // console.log(response);
             if(response.error){
                 return;
             }
@@ -174,7 +174,7 @@ const summarization = async () => {
 
 const summary = () => {
     //run every 10 minutes
-    console.log('Running summary job...');
+    // console.log('Running summary job...');
     summarization();
     cron.schedule('*/10 * * * *', summarization)
 } 

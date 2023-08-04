@@ -49,11 +49,11 @@ const processFile = async (file) => {
         return item;
       }
     });
-    console.log(audioFile);
-    console.log(videoFileKey);
+    // console.log(audioFile);
+    // console.log(videoFileKey);
     //check if video file is present
     if(videoFileKey.length === 0){
-      console.log("Video file not present");
+      // console.log("Video file not present");
       return;
     }
     //update file schema with audio and video keys
@@ -79,7 +79,7 @@ const processFile = async (file) => {
 };
 
 const runTask = async () => {
-  console.log('Running cron job...');
+  // console.log('Running cron job...');
 
   try {
     // check if awskey is not null and file is not processed
@@ -94,7 +94,7 @@ const runTask = async () => {
       },
     });
 
-    console.log("uv: ",files);
+    // console.log("uv: ",files);
     if (files.length === 0) {
       console.log('No files to process');
       setTimeout(runTask, 1000 * 60 * 5);

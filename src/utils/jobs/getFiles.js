@@ -5,7 +5,7 @@ const handler = require('../google/getAccessToken');
 
 const getFiles = async () => {
     try{
-        console.log("getting files");
+        // console.log("getting files");
         let meets = await prisma.meeting.findMany({
             where: {
               file: {
@@ -15,14 +15,14 @@ const getFiles = async () => {
           });
           //filter meets without recordingLink
           meets = meets.filter(meet => meet.recordingLink !== "");
-          console.log(meets);
+          // console.log(meets);
           meets.map(async (meet) => {
             const update = async () => {
             const { id, recordingLink,numberOfSpeakers,meetid } = meet;
             const accessToken = await handler(process.env.DRIVE_EMAIL);
-            console.log(accessToken);
+            // console.log(accessToken);
             const folderId = recordingLink.split('folders/')[1].split('/')[0]; // Extract the folder ID from recordingLink
-            console.log(folderId);
+            // console.log(folderId);
             const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents`; // Construct the URL to fetch the files inside the folder
             fetch(url, {
               method: 'GET',

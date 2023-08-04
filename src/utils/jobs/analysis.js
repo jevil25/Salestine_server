@@ -6,7 +6,7 @@ const FormData = require('form-data');
 
 const analysis = async () => {
     try{
-        console.log("inside analysis")
+        // console.log("inside analysis")
         const analysis = await prisma.file.findMany({
             where: {
                 transcriptionComplete: true,
@@ -15,13 +15,13 @@ const analysis = async () => {
         });
         analysis.forEach(async (items) => {
             const data = new FormData();
-            console.log("analysis request sent")
+            // console.log("analysis request sent")
             data.append('diar_data', items.diarizerText);
             const analy = await fetch(process.env.ANALYZE_URL, {
                 method: 'post',
                 body: data,
             }).then((res) => res.json()).then(async (data) => {
-                console.log(data);
+                // console.log(data);
                 if(data.status === false){
                 const analy = await prisma.analysis.create({
                     data: {
