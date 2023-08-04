@@ -109,6 +109,18 @@ const processFile = async (file) => {
             fs.unlinkSync(`./${item.split(".")[0]}.wav`);
             throw new Error('Failed to upload the converted file.');
           }
+          if(response.data.status === false){
+            //update file schema with transcription complete
+            const file = await prisma.file.update({
+              where: {
+                meetingId: meetingId,
+              },
+              data: {
+                transcriptionComplete: true,
+              }
+            });
+            return false;
+          }
       
           console.log("Waiting for response from ASR");
           const json = await response.data;
