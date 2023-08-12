@@ -92,6 +92,9 @@ const processFile = async (file) => {
             const config = {
               method: 'post',
               maxBodyLength: Infinity,
+              params:{
+                _limit : 1
+              },
               url: process.env.ASR_URL,
               headers: {
                 ...data.getHeaders(),
