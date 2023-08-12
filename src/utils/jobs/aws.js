@@ -106,7 +106,7 @@ const processFile = async (file) => {
             //use axios
           const response = await axios(config);
       
-          console.log(response.data);
+          console.log(response.data.data);
       
           if (response.status!==200) {
             fs.unlinkSync(`./${item.split(".")[0]}.wav`);
@@ -126,7 +126,7 @@ const processFile = async (file) => {
           }
       
           console.log("Waiting for response from ASR");
-          const json = await response.data;
+          const json = await response.data.data;
       
           //delete wav file
           fs.unlinkSync(`./${item.split(".")[0]}.wav`);
