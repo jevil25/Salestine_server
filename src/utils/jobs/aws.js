@@ -92,9 +92,6 @@ const processFile = async (file) => {
             const config = {
               method: 'post',
               maxBodyLength: Infinity,
-              params:{
-                _limit : 1
-              },
               url: process.env.ASR_URL,
               headers: {
                 ...data.getHeaders(),
@@ -104,9 +101,15 @@ const processFile = async (file) => {
       
           console.log("Sending data to ASR");
             //use axios
-          const response = await axios(config);
-      
-          console.log(response.data.data);
+          const response = await fetch(config.url, {
+          method: config.method,
+          headers: {
+            ...data.getHeaders(),
+          },
+          body: data,
+        });
+        console.log(response);
+          // console.log(response.data.data);
       
           if (response.status!==200) {
             fs.unlinkSync(`./${item.split(".")[0]}.wav`);
