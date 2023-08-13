@@ -124,7 +124,7 @@ const processFile = async (file) => {
               return response;
             }
             
-            const response = makeRequest();
+            const response = await makeRequest();
           console.log(response);
           console.log(response.data.data);
       
