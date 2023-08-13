@@ -89,34 +89,43 @@ const processFile = async (file) => {
           data.append('audio_data', fs.createReadStream(`./${item.split(".")[0]}.wav`));
           // data.append('num_speaker', 7);
           try{
-            const config = {
-              method: 'post',
-              maxBodyLength: Infinity,
-              url: process.env.ASR_URL,
-              headers: {
-                ...data.getHeaders(),
+            axios.interceptors.request.use(
+              (config) => {
+                // Add a header to indicate that we do not want the request to be redirected
+                config.headers['X-Do-Not-Redirect'] = 'true';
+                return config;
               },
-              data: data,
-              // Disable automatic redirects
-              maxRedirects: 1,
-            };
-      
-          console.log("Sending data to ASR");
-            //use axios
-          const response = await axios(config);
-          console.log(response);
-          // Handle redirect manually if needed
-          if (response.status === 307) {
-            console.log("redirecting");
-            // You can access the 'Location' header to get the redirect URL
-            console.log(response.headers['location']);
-            const redirectUrl = response.headers['location'];
+              (error) => {
+                // If the error is a redirection error, do not re-send the request
+                if (error.response.status === 302) {
+                  return Promise.reject(error);
+                }
             
-            // Do something with the redirect URL, if necessary
-          } else {
-            // Handle the successful response
-          }
-      
+                // Otherwise, re-throw the error
+                return Promise.reject(error);
+              }
+            );
+            
+            async function makeRequest() {
+              const config = {
+                method: 'post',
+                maxBodyLength: Infinity,
+                url: process.env.ASR_URL,
+                headers: {
+                  ...data.getHeaders(),
+                },
+                data: data,
+                // Disable automatic redirects
+                maxRedirects: 1,
+              };
+            
+              console.log("Sending data to ASR");
+              const response = await axios(config);
+              return response;
+            }
+            
+            const response = makeRequest();
+          console.log(response);
           console.log(response.data.data);
       
           if (response.status!==200) {
@@ -137,7 +146,7 @@ const processFile = async (file) => {
           }
       
           console.log("Waiting for response from ASR");
-          const json = await response.data.data;
+          const json = await response.data;
       
           //delete wav file
           fs.unlinkSync(`./${item.split(".")[0]}.wav`);
