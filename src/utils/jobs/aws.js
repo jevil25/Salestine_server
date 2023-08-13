@@ -92,16 +92,13 @@ const processFile = async (file) => {
             const config = {
               method: 'post',
               maxBodyLength: Infinity,
-              params: {
-                _limit: 1
-              },
               url: process.env.ASR_URL,
               headers: {
                 ...data.getHeaders(),
               },
               data: data,
               // Disable automatic redirects
-              maxRedirects: 0,
+              maxRedirects: 1,
             };
       
           console.log("Sending data to ASR");
@@ -110,6 +107,7 @@ const processFile = async (file) => {
           console.log(response);
           // Handle redirect manually if needed
           if (response.status === 307) {
+            console.log("redirecting");
             // You can access the 'Location' header to get the redirect URL
             console.log(response.headers['location']);
             const redirectUrl = response.headers['location'];
