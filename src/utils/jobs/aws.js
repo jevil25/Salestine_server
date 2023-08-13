@@ -11,7 +11,7 @@ let ffprobePath = ffmpegPath.replace('ffmpeg.exe', 'ffprobe.exe');
 ffprobePath = ffprobePath.replace('ffmpeg-installer', 'ffprobe-installer');
 ffmpeg.setFfprobePath(ffprobePath);
 const aws = require('aws-sdk');
-const { file } = require('googleapis/build/src/apis/file');
+const followRedirects = require('follow-redirects');
 
 const processFile = async (file) => {
   try{
@@ -92,24 +92,34 @@ const processFile = async (file) => {
             const config = {
               method: 'post',
               maxBodyLength: Infinity,
+              params: {
+                _limit: 1
+              },
               url: process.env.ASR_URL,
               headers: {
                 ...data.getHeaders(),
               },
               data: data,
+              // Disable automatic redirects
+              maxRedirects: 0,
             };
       
           console.log("Sending data to ASR");
             //use axios
-          const response = await fetch(config.url, {
-          method: config.method,
-          headers: {
-            ...data.getHeaders(),
-          },
-          body: data,
-        });
-        console.log(response);
-          // console.log(response.data.data);
+          const response = await axios(config);
+          console.log(response);
+          // Handle redirect manually if needed
+          if (response.status === 307) {
+            // You can access the 'Location' header to get the redirect URL
+            console.log(response.headers['location']);
+            const redirectUrl = response.headers['location'];
+            
+            // Do something with the redirect URL, if necessary
+          } else {
+            // Handle the successful response
+          }
+      
+          console.log(response.data.data);
       
           if (response.status!==200) {
             fs.unlinkSync(`./${item.split(".")[0]}.wav`);
