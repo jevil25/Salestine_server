@@ -138,53 +138,55 @@ const processFile = async (file) => {
           json.data.map(async (item) => {
             // item = JSON.parse(item);
             console.log("inside: ",item);
-            item.map(async (item) => {
-              let speaker = item.speaker;
-              if(!speaker.startsWith("speaker")){
-                speaker = speaker.split(".pth")[0];
-              }
-              let start_time = item.start_time.toString();
-              let end_time = item.end_time.toString();
-              let text = item.text;
-              //store to db
-              const transcript = await prisma.transcript.create({
-                data: {
-                  speaker: speaker,
-                  startTime: start_time,
-                  endTime: end_time,
-                  text: text,
-                  meetingId: meetingId,
-                },
-              });
-              console.log(transcript);
-            });
-            const file = await prisma.file.upsert({
-              where: {
-                meetingId: meetingId,
-              },
-              create: {
-                transcriptionComplete: true,
-                diarizerText: json.data[0],
-                videoId: videoFileKey[0],
-                meeting: {
-                  connect: {
-                    meetid: meetingId,
-                  }
-                }
-              },
-              update: {
-                  transcriptionComplete: true,
-                  diarizerText: json.data[0],
-                  videoId: videoFileKey[0],
-                },
-            });
-            console.log(file);
+            // item.map(async (item) => {
+            //   let speaker = item.speaker;
+            //   if(!speaker.startsWith("speaker")){
+            //     speaker = speaker.split(".pth")[0];
+            //   }
+            //   let start_time = item.start_time.toString();
+            //   let end_time = item.end_time.toString();
+            //   let text = item.text;
+            //   //store to db
+            //   const transcript = await prisma.transcript.create({
+            //     data: {
+            //       speaker: speaker,
+            //       startTime: start_time,
+            //       endTime: end_time,
+            //       text: text,
+            //       meetingId: meetingId,
+            //     },
+            //   });
+            //   console.log(transcript);
+            // });
+            // const file = await prisma.file.upsert({
+            //   where: {
+            //     meetingId: meetingId,
+            //   },
+            //   create: {
+            //     transcriptionComplete: true,
+            //     diarizerText: json.data[0],
+            //     videoId: videoFileKey[0],
+            //     meeting: {
+            //       connect: {
+            //         meetid: meetingId,
+            //       }
+            //     }
+            //   },
+            //   update: {
+            //       transcriptionComplete: true,
+            //       diarizerText: json.data[0],
+            //       videoId: videoFileKey[0],
+            //     },
+            // });
+            // console.log(file);
           });
             const analysis = json.data;
             analysis.forEach(async (item) => {
               const speakers = Object.keys(item);
+              console.log(speakers);
               for (const speaker of speakers) {
                 const analysisData = item[speaker];
+                coneole.log(analysisData);
       
                 // Extract the values from the analysisData object
                 const talkRatio = analysisData.talk_ratio;
