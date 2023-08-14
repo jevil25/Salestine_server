@@ -136,8 +136,8 @@ const processFile = async (file) => {
       
           console.log(json);
           json.data.map(async (item) => {
-            item = JSON.parse(item);
-            console.log(item);
+            // item = JSON.parse(item);
+            console.log("inside: ",item);
             item.map(async (item) => {
               let speaker = item.speaker;
               if(!speaker.startsWith("speaker")){
@@ -180,20 +180,7 @@ const processFile = async (file) => {
             });
             console.log(file);
           });
-          const msg = new FormData();
-          console.log("analysis request sent")
-          msg.append('diar_data', json.data[0]);
-          const analy = await fetch(process.env.ANALYZE_URL, {
-            method: 'post',
-            body: {
-              diar_data: msg,
-            }
-          }).then((res) => res.json()).then(async (data) => {
-            console.log(data);
-            if(data.status === false){
-              return false;
-            }
-            const analysis = data.data;
+            const analysis = json.data;
             analysis.forEach(async (item) => {
               const speakers = Object.keys(item);
               for (const speaker of speakers) {
@@ -245,7 +232,6 @@ const processFile = async (file) => {
                 analysisComplete: true,
               }
             });
-          });
 
           //summarization
           console.log("Sending data to summarization");
