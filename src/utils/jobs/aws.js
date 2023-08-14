@@ -88,35 +88,15 @@ const processFile = async (file) => {
           const data = new FormData();
           data.append('audio_data', fs.createReadStream(`./${item.split(".")[0]}.wav`));
           // data.append('num_speaker', 7);
-          try{
-            axios.interceptors.request.use(
-              (config) => {
-                // Add a header to indicate that we do not want the request to be redirected
-                config.headers['X-Do-Not-Redirect'] = 'true';
-                return config;
-              },
-              (error) => {
-                // If the error is a redirection error, do not re-send the request
-                if (error.response.status === 302) {
-                  return Promise.reject(error);
-                }
-            
-                // Otherwise, re-throw the error
-                return Promise.reject(error);
-              }
-            );
-            
+          try{            
             async function makeRequest() {
               const config = {
                 method: 'post',
-                maxBodyLength: Infinity,
                 url: process.env.ASR_URL,
                 headers: {
                   ...data.getHeaders(),
                 },
                 data: data,
-                // Disable automatic redirects
-                maxRedirects: 1,
               };
             
               console.log("Sending data to ASR");
