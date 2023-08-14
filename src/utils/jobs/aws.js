@@ -186,7 +186,7 @@ const processFile = async (file) => {
               console.log(speakers);
               for (const speaker of speakers) {
                 const analysisData = item[speaker];
-                coneole.log(analysisData);
+                console.log(analysisData);
       
                 // Extract the values from the analysisData object
                 const talkRatio = analysisData.talk_ratio;
