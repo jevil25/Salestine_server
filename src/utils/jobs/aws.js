@@ -11,7 +11,7 @@ let ffprobePath = ffmpegPath.replace('ffmpeg.exe', 'ffprobe.exe');
 ffprobePath = ffprobePath.replace('ffmpeg-installer', 'ffprobe-installer');
 ffmpeg.setFfprobePath(ffprobePath);
 const aws = require('aws-sdk');
-const { file } = require('googleapis/build/src/apis/file');
+const followRedirects = require('follow-redirects');
 
 const processFile = async (file) => {
   try{
@@ -88,28 +88,25 @@ const processFile = async (file) => {
           const data = new FormData();
           data.append('audio_data', fs.createReadStream(`./${item.split(".")[0]}.wav`));
           // data.append('num_speaker', 7);
-          try{
-            const config = {
-              method: 'post',
-              maxBodyLength: Infinity,
-              url: process.env.ASR_URL,
-              headers: {
-                ...data.getHeaders(),
-              },
-              data: data,
-            };
-      
-          console.log("Sending data to ASR");
-            //use axios
-          const response = await fetch(config.url, {
-          method: config.method,
-          headers: {
-            ...data.getHeaders(),
-          },
-          body: data,
-        });
-        console.log(response);
-          // console.log(response.data.data);
+          try{            
+            async function makeRequest() {
+              const config = {
+                method: 'post',
+                url: process.env.ASR_URL,
+                headers: {
+                  ...data.getHeaders(),
+                },
+                data: data,
+              };
+            
+              console.log("Sending data to ASR");
+              const response = await axios(config);
+              return response;
+            }
+            
+            const response = await makeRequest();
+          console.log(response);
+          console.log(response.data.data);
       
           if (response.status!==200) {
             fs.unlinkSync(`./${item.split(".")[0]}.wav`);
@@ -129,7 +126,7 @@ const processFile = async (file) => {
           }
       
           console.log("Waiting for response from ASR");
-          const json = await response.data.data;
+          const json = await response.data;
       
           //delete wav file
           fs.unlinkSync(`./${item.split(".")[0]}.wav`);
@@ -139,68 +136,57 @@ const processFile = async (file) => {
       
           console.log(json);
           json.data.map(async (item) => {
-            item = JSON.parse(item);
-            console.log(item);
-            item.map(async (item) => {
-              let speaker = item.speaker;
-              if(!speaker.startsWith("speaker")){
-                speaker = speaker.split(".pth")[0];
-              }
-              let start_time = item.start_time.toString();
-              let end_time = item.end_time.toString();
-              let text = item.text;
-              //store to db
-              const transcript = await prisma.transcript.create({
-                data: {
-                  speaker: speaker,
-                  startTime: start_time,
-                  endTime: end_time,
-                  text: text,
-                  meetingId: meetingId,
-                },
-              });
-              console.log(transcript);
-            });
-            const file = await prisma.file.upsert({
-              where: {
-                meetingId: meetingId,
-              },
-              create: {
-                transcriptionComplete: true,
-                diarizerText: json.data[0],
-                videoId: videoFileKey[0],
-                meeting: {
-                  connect: {
-                    meetid: meetingId,
-                  }
-                }
-              },
-              update: {
-                  transcriptionComplete: true,
-                  diarizerText: json.data[0],
-                  videoId: videoFileKey[0],
-                },
-            });
-            console.log(file);
+            // item = JSON.parse(item);
+            console.log("inside: ",item);
+            // item.map(async (item) => {
+            //   let speaker = item.speaker;
+            //   if(!speaker.startsWith("speaker")){
+            //     speaker = speaker.split(".pth")[0];
+            //   }
+            //   let start_time = item.start_time.toString();
+            //   let end_time = item.end_time.toString();
+            //   let text = item.text;
+            //   //store to db
+            //   const transcript = await prisma.transcript.create({
+            //     data: {
+            //       speaker: speaker,
+            //       startTime: start_time,
+            //       endTime: end_time,
+            //       text: text,
+            //       meetingId: meetingId,
+            //     },
+            //   });
+            //   console.log(transcript);
+            // });
+            // const file = await prisma.file.upsert({
+            //   where: {
+            //     meetingId: meetingId,
+            //   },
+            //   create: {
+            //     transcriptionComplete: true,
+            //     diarizerText: json.data[0],
+            //     videoId: videoFileKey[0],
+            //     meeting: {
+            //       connect: {
+            //         meetid: meetingId,
+            //       }
+            //     }
+            //   },
+            //   update: {
+            //       transcriptionComplete: true,
+            //       diarizerText: json.data[0],
+            //       videoId: videoFileKey[0],
+            //     },
+            // });
+            // console.log(file);
           });
-          const msg = new FormData();
-          console.log("analysis request sent")
-          msg.append('diar_data', json.data[0]);
-          const analy = await fetch(process.env.ANALYZE_URL, {
-            method: 'post',
-            body: {
-              diar_data: msg,
-            }
-          }).then((res) => res.json()).then(async (data) => {
-            console.log(data);
-            if(data.status === false){
-              return false;
-            }
-            const analysis = data.data;
+            const analysis = json.data;
             analysis.forEach(async (item) => {
               const speakers = Object.keys(item);
+              console.log(speakers);
               for (const speaker of speakers) {
                 const analysisData = item[speaker];
+                console.log(analysisData);
       
                 // Extract the values from the analysisData object
                 const talkRatio = analysisData.talk_ratio;
@@ -248,7 +234,6 @@ const processFile = async (file) => {
                 analysisComplete: true,
               }
             });
-          });
 
           //summarization
           console.log("Sending data to summarization");

@@ -24,6 +24,21 @@ router.post("/", async (req, res) => {
             trim: true,
         },
     });
+    await prisma.file.delete({
+        where: { meetingId: meetid },
+    });
+    await prisma.transcript.deleteMany({
+        where: { meetingId: meetid },
+    });
+    await prisma.trim.deleteMany({
+        where: { meetingId: meetid },
+    });
+    await prisma.analysis.deleteMany({
+        where: { meetingId: meetid },
+    });
+    await prisma.comments.deleteMany({
+        where: { meetid },
+    });
     console.log(deleteMeet);
     if(!deleteMeet){
         return res.status(400).json({ message: "Invalid Request",status:false });
