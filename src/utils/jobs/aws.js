@@ -126,7 +126,7 @@ const processFile = async (file) => {
           }
       
           console.log("Waiting for response from ASR");
-          const json = await response.data;
+          const json = await response.data.transcripts;
       
           //delete wav file
           fs.unlinkSync(`./${item.split(".")[0]}.wav`);
@@ -135,50 +135,50 @@ const processFile = async (file) => {
           // }
       
           console.log(json);
-          json.data.map(async (item) => {
-            // item = JSON.parse(item);
-            console.log("inside: ",item);
-            // item.map(async (item) => {
-            //   let speaker = item.speaker;
-            //   if(!speaker.startsWith("speaker")){
-            //     speaker = speaker.split(".pth")[0];
-            //   }
-            //   let start_time = item.start_time.toString();
-            //   let end_time = item.end_time.toString();
-            //   let text = item.text;
-            //   //store to db
-            //   const transcript = await prisma.transcript.create({
-            //     data: {
-            //       speaker: speaker,
-            //       startTime: start_time,
-            //       endTime: end_time,
-            //       text: text,
-            //       meetingId: meetingId,
-            //     },
-            //   });
-            //   console.log(transcript);
-            // });
-            // const file = await prisma.file.upsert({
-            //   where: {
-            //     meetingId: meetingId,
-            //   },
-            //   create: {
-            //     transcriptionComplete: true,
-            //     diarizerText: json.data[0],
-            //     videoId: videoFileKey[0],
-            //     meeting: {
-            //       connect: {
-            //         meetid: meetingId,
-            //       }
-            //     }
-            //   },
-            //   update: {
-            //       transcriptionComplete: true,
-            //       diarizerText: json.data[0],
-            //       videoId: videoFileKey[0],
-            //     },
-            // });
-            // console.log(file);
+          json.map(async (item) => {
+            item = JSON.parse(item);
+            // console.log("inside: ",item);
+            item.map(async (item) => {
+              let speaker = item.speaker;
+              if(!speaker.startsWith("speaker")){
+                speaker = speaker.split(".pth")[0];
+              }
+              let start_time = item.start_time.toString();
+              let end_time = item.end_time.toString();
+              let text = item.text;
+              //store to db
+              const transcript = await prisma.transcript.create({
+                data: {
+                  speaker: speaker,
+                  startTime: start_time,
+                  endTime: end_time,
+                  text: text,
+                  meetingId: meetingId,
+                },
+              });
+              console.log(transcript);
+            });
+            const file = await prisma.file.upsert({
+              where: {
+                meetingId: meetingId,
+              },
+              create: {
+                transcriptionComplete: true,
+                diarizerText: json.data[0],
+                videoId: videoFileKey[0],
+                meeting: {
+                  connect: {
+                    meetid: meetingId,
+                  }
+                }
+              },
+              update: {
+                  transcriptionComplete: true,
+                  diarizerText: json.data[0],
+                  videoId: videoFileKey[0],
+                },
+            });
+            console.log(file);
           });
             const analysis = json.data;
             analysis.forEach(async (item) => {
