@@ -34,7 +34,7 @@ async function handler(req, res) {
     const formData = new FormData();
     formData.append("audio_data", fs.createReadStream("audio_data.wav"));
     formData.append("speaker_name", user.id);
-    await fetch("http://18.190.131.83:5555/speaker_enroll/", {
+    await fetch("http://103.177.225.41:5555/speaker_enroll/", {
       method: "POST",
       headers: {
         ...formData.getHeaders(),
